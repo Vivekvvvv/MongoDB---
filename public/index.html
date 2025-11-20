@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易电商平台</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">MyShop</div>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="搜索商品...">
+            <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div class="category-filter" style="margin: 0 20px;">
+            <select id="categoryFilter" onchange="filterByCategory()" style="padding: 8px; border-radius: 4px; border: none;">
+                <option value="">所有分类</option>
+                <option value="Electronics">电子产品</option>
+                <option value="Clothing">服装</option>
+                <option value="Books">书籍</option>
+                <option value="Home">家居</option>
+                <option value="Beauty">美妆</option>
+            </select>
+        </div>
+
+        <div class="nav-actions">
+            <div class="nav-item" onclick="toggleOrders()">
+                <i class="fas fa-clipboard-list"></i> 订单
+            </div>
+            <!-- Admin link will be injected by JS -->
+            <div class="nav-cart" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span id="cartCount">0</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- Hero Section -->
+        <div class="hero-section" style="background: linear-gradient(to right, #2c3e50, #3498db); color: white; padding: 40px; border-radius: 10px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between;">
+            <div>
+                <h1 style="margin: 0 0 10px 0;">欢迎来到 MyShop</h1>
+                <p style="margin: 0 0 20px 0; opacity: 0.9;">发现生活中的美好，精选好物等你来挑。</p>
+                <button onclick="document.getElementById('productList').scrollIntoView({behavior: 'smooth'})" style="background: white; color: #3498db; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">立即购物</button>
+            </div>
+            <div style="font-size: 5rem; opacity: 0.2;">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <h2 class="section-title"><i class="fas fa-fire" style="color: #e74c3c;"></i> 热门商品</h2>
+        <div id="productList" class="product-grid">
+            <!-- Products will be displayed here -->
+            <p>正在加载商品...</p>
+        </div>
+    </div>
+
+    <!-- Shopping Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h3>购物车</h3>
+            <button onclick="toggleCart()" class="close-cart">&times;</button>
+        </div>
+        <div id="cartItems" class="cart-items">
+            <!-- Cart items here -->
+            <p class="empty-cart">购物车是空的</p>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total">总计: ¥<span id="cartTotal">0.00</span></div>
+            <button onclick="checkout()" class="checkout-btn">去结算</button>
+        </div>
+    </div>
+
+    <!-- Orders Modal -->
+    <div id="ordersModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>我的订单</h2>
+                <button class="close-btn" onclick="toggleOrders()">&times;</button>
+            </div>
+            <div id="ordersList" class="orders-list">
+                <p>加载中...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="overlay" class="overlay" onclick="closeAllOverlays()"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
