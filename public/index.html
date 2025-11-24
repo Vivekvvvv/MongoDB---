@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>简易电商平台</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style-enhanced.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -29,10 +29,31 @@
         </div>
 
         <div class="nav-actions">
-            <div class="nav-item" onclick="toggleOrders()">
-                <i class="fas fa-clipboard-list"></i> 订单
+            <!-- User info and admin link will be injected by JS -->
+            <div class="user-menu">
+                <div class="user-info" onclick="toggleUserMenu()">
+                    <i class="fas fa-user"></i>
+                    <span class="user-name">用户</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div id="userDropdown" class="user-dropdown" style="display: none;">
+                    <a href="profile.html" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i> 个人中心
+                    </a>
+                    <a href="#" onclick="showMyOrders()" class="dropdown-item">
+                        <i class="fas fa-shopping-bag"></i> 我的订单
+                    </a>
+                    <a href="#" onclick="showAddressManagement()" class="dropdown-item">
+                        <i class="fas fa-map-marker-alt"></i> 地址管理
+                    </a>
+                    <a href="admin.html" id="adminLink" class="dropdown-item" style="display: none;">
+                        <i class="fas fa-cog"></i> 管理后台
+                    </a>
+                    <a href="#" onclick="logout()" class="dropdown-item logout">
+                        <i class="fas fa-sign-out-alt"></i> 退出登录
+                    </a>
+                </div>
             </div>
-            <!-- Admin link will be injected by JS -->
             <div class="nav-cart" onclick="toggleCart()">
                 <i class="fas fa-shopping-cart"></i>
                 <span id="cartCount">0</span>
@@ -43,23 +64,65 @@
     <div class="container">
         
         <!-- Hero Section -->
-        <div class="hero-section" style="background: linear-gradient(to right, #2c3e50, #3498db); color: white; padding: 40px; border-radius: 10px; margin-bottom: 30px; display: flex; align-items: center; justify-content: space-between;">
-            <div>
-                <h1 style="margin: 0 0 10px 0;">欢迎来到 MyShop</h1>
-                <p style="margin: 0 0 20px 0; opacity: 0.9;">发现生活中的美好，精选好物等你来挑。</p>
-                <button onclick="document.getElementById('productList').scrollIntoView({behavior: 'smooth'})" style="background: white; color: #3498db; border: none; padding: 10px 25px; border-radius: 20px; font-weight: bold; cursor: pointer;">立即购物</button>
-            </div>
-            <div style="font-size: 5rem; opacity: 0.2;">
-                <i class="fas fa-shopping-bag"></i>
+        <div class="hero-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 60px 40px; border-radius: 15px; margin-bottom: 40px; text-align: center;">
+            <h1 style="margin: 0 0 15px 0; font-size: 2.5em;">✨ 智能推荐商城</h1>
+            <p style="margin: 0 0 30px 0; opacity: 0.9; font-size: 1.2em;">基于购买量和库存的智能推荐，为您精选优质商品</p>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <button onclick="document.getElementById('recommendedList').scrollIntoView({behavior: 'smooth'})" style="background: white; color: #764ba2; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 16px;">
+                    <i class="fas fa-star"></i> 查看推荐
+                </button>
+                <button onclick="document.getElementById('productList').scrollIntoView({behavior: 'smooth'})" style="background: transparent; color: white; border: 2px solid white; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 16px;">
+                    <i class="fas fa-th"></i> 全部商品
+                </button>
             </div>
         </div>
 
-        <!-- Product Grid -->
-        <h2 class="section-title"><i class="fas fa-fire" style="color: #e74c3c;"></i> 热门商品</h2>
-        <div id="productList" class="product-grid">
-            <!-- Products will be displayed here -->
-            <p>正在加载商品...</p>
-        </div>
+        <!-- 推荐商品区域 -->
+        <section id="recommendedProducts" style="margin-bottom: 50px;">
+            <div class="section-header" style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #2c3e50; margin-bottom: 10px;">
+                    <i class="fas fa-fire" style="color: #ff6b6b;"></i>
+                    智能推荐商品
+                </h2>
+                <p style="color: #7f8c8d; font-size: 1.1em;">基于销量、库存和商家信誉的热门商品</p>
+            </div>
+            <div id="recommendedList" class="product-grid">
+                <!-- 推荐商品将通过JS动态加载 -->
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #3498db;"></i>
+                    <p style="margin-top: 15px; color: #7f8c8d;">正在加载推荐商品...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 全部商品区域 -->
+        <section id="allProducts">
+            <div class="section-header" style="text-align: center; margin-bottom: 30px;">
+                <h2 style="color: #2c3e50; margin-bottom: 10px;">
+                    <i class="fas fa-th-large" style="color: #3498db;"></i>
+                    全部商品
+                </h2>
+                <div style="display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                    <select id="sortBy" onchange="sortProducts()" style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px;">
+                        <option value="createdAt">最新上架</option>
+                        <option value="salesCount">销量最高</option>
+                        <option value="priceAsc">价格从低到高</option>
+                        <option value="priceDesc">价格从高到低</option>
+                        <option value="stock">库存最多</option>
+                    </select>
+                    <button onclick="loadProducts()" style="background: #3498db; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-sync-alt"></i> 刷新
+                    </button>
+                </div>
+            </div>
+            <div id="productList" class="product-grid">
+                <!-- Products will be displayed here -->
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #3498db;"></i>
+                    <p style="margin-top: 15px; color: #7f8c8d;">正在加载商品...</p>
+                </div>
+            </div>
+        </section>
     </div>
 
     <!-- Shopping Cart Sidebar -->
@@ -78,21 +141,9 @@
         </div>
     </div>
 
-    <!-- Orders Modal -->
-    <div id="ordersModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>我的订单</h2>
-                <button class="close-btn" onclick="toggleOrders()">&times;</button>
-            </div>
-            <div id="ordersList" class="orders-list">
-                <p>加载中...</p>
-            </div>
-        </div>
-    </div>
-
+  
     <div id="overlay" class="overlay" onclick="closeAllOverlays()"></div>
 
-    <script src="app.js"></script>
+    <script src="app-enhanced.js"></script>
 </body>
 </html>
