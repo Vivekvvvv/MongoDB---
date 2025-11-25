@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>地址管理 - 简易电商平台</title>
-    <link rel="stylesheet" href="style-enhanced.css">
+    <link rel="stylesheet" href="style.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -566,7 +566,7 @@
         // 加载地址列表
         async function loadAddresses() {
             try {
-                const response = await fetch(`${API_BASE}/addresses`);
+                const response = await fetch(`${API_BASE}/addresses/${currentUser.id}`);
                 if (!response.ok) {
                     throw new Error('加载地址列表失败');
                 }

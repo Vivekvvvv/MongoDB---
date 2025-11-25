@@ -20,7 +20,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/ecommerce';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/my_database';
 
 mongoose.connect(MONGODB_URI)
 .then(() => {
@@ -45,7 +45,7 @@ async function seedDatabase() {
       console.log('Admin account created: 12345@123.com / 12345');
     }
 
-    // 创建默认商家用户
+    // 创建默认商家用户（增加额外商家）
     const merchants = [
       {
         name: '官方旗舰店',
@@ -55,7 +55,9 @@ async function seedDatabase() {
         merchantInfo: {
           shopName: '官方旗舰店',
           shopDescription: '官方正品，品质保证',
-          contactPhone: '400-888-8888'
+          contactPhone: '400-888-8888',
+          rating: 4.8,
+          totalSales: 1200
         }
       },
       {
@@ -66,7 +68,35 @@ async function seedDatabase() {
         merchantInfo: {
           shopName: '潮流数码',
           shopDescription: '最新数码产品，潮流前沿',
-          contactPhone: '400-999-9999'
+          contactPhone: '400-999-9999',
+          rating: 4.6,
+          totalSales: 800
+        }
+      },
+      {
+        name: '家居良品',
+        email: 'merchant3@home.com',
+        password: '123456',
+        role: 'merchant',
+        merchantInfo: {
+          shopName: '家居良品',
+          shopDescription: '舒适家居，品质之选',
+          contactPhone: '400-777-7777',
+          rating: 4.7,
+          totalSales: 600
+        }
+      },
+      {
+        name: '时尚服饰',
+        email: 'merchant4@fashion.com',
+        password: '123456',
+        role: 'merchant',
+        merchantInfo: {
+          shopName: '时尚服饰',
+          shopDescription: '潮流时尚，价格亲民',
+          contactPhone: '400-666-6666',
+          rating: 4.5,
+          totalSales: 700
         }
       }
     ];
@@ -86,19 +116,9 @@ async function seedDatabase() {
 
     // Seed Products
     const productCount = await Product.countDocuments();
-    const homeCount = await Product.countDocuments({ category: 'Home' });
-    const beautyCount = await Product.countDocuments({ category: 'Beauty' });
-
-    // 获取供应商用户
-    const suppliers = await User.find({ role: 'merchant' });
-    const appleSupplier = suppliers.find(s => s.name === 'Apple官方供应商');
-    const xiaomiSupplier = suppliers.find(s => s.name === '小米官方供应商');
-    const dysonSupplier = suppliers.find(s => s.name === '戴森官方供应商');
-    const sonySupplier = suppliers.find(s => s.name === 'Sony官方供应商');
-    const lenovoSupplier = suppliers.find(s => s.name === '联想官方供应商');
 
     const products = [
-      // Electronics
+      // Electronics - 官方旗舰店
       {
         name: '高性能笔记本电脑',
         description: '搭载最新处理器，超长续航，适合办公和游戏。',
@@ -109,7 +129,12 @@ async function seedDatabase() {
         merchantId: merchant1 ? merchant1._id : null,
         productCode: 'LAPTOP-001',
         stock: 50,
-        salesCount: 128
+        shippingAddress: {
+          province: '广东省',
+          city: '深圳市',
+          district: '南山区',
+          detail: '科技园'
+        }
       },
       {
         name: '无线降噪耳机',
@@ -117,7 +142,16 @@ async function seedDatabase() {
         price: 1299,
         category: 'Electronics',
         imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
-        salesCount: 89
+        merchant: '潮流数码',
+        merchantId: merchant2 ? merchant2._id : null,
+        productCode: 'HEADPHONE-001',
+        stock: 100,
+        shippingAddress: {
+          province: '北京市',
+          city: '北京市',
+          district: '朝阳区',
+          detail: 'CBD商务区'
+        }
       },
       {
         name: '机械键盘',
@@ -125,48 +159,52 @@ async function seedDatabase() {
         price: 399,
         category: 'Electronics',
         imageUrl: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2V5Ym9hcmR8ZW58MHx8MHx8fDA%3D',
-        supplier: 'Apple官方供应商',
-        supplierId: appleSupplier ? appleSupplier._id : null,
-        merchant: '官方旗舰店',
-        merchantId: merchant1 ? merchant1._id : null
+        merchant: '潮流数码',
+        merchantId: merchant2 ? merchant2._id : null,
+        productCode: 'KEYBOARD-001',
+        stock: 200,
+        shippingAddress: {
+          province: '上海市',
+          city: '上海市',
+          district: '浦东新区',
+          detail: '张江高科技园区'
+        }
       },
-      {
-        name: '智能手表',
-        description: '健康监测，运动模式，超长待机。',
-        price: 899,
-        category: 'Electronics',
-        imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHNtYXJ0d2F0Y2h8ZW58MHx8MHx8fDA%3D'
-      },
-      {
-        name: '4K显示器',
-        description: '超高清画质，色彩精准，专业设计首选。',
-        price: 2499,
-        category: 'Electronics',
-        imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bW9uaXRvcnxlbnwwfHwwfHx8MA%3D%3D'
-      },
-      
+
       // Clothing
       {
         name: '纯棉T恤',
         description: '100%纯棉，透气舒适，简约百搭。',
         price: 99,
         category: 'Clothing',
-        imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dHNoaXJ0fGVufDB8fDB8fHww'
+        imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dHNoaXJ0fGVufDB8fDB8fHww',
+        merchant: '官方旗舰店',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'TSHIRT-001',
+        stock: 300,
+        shippingAddress: {
+          province: '浙江省',
+          city: '杭州市',
+          district: '余杭区',
+          detail: '电商产业园'
+        }
       },
       {
         name: '牛仔夹克',
         description: '经典复古风格，耐磨耐穿，时尚单品。',
         price: 299,
         category: 'Clothing',
-        imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8amFja2V0fGVufDB8fDB8fHww'
-      },
-      {
-        name: '运动跑鞋',
-        description: '轻盈透气，缓震鞋底，助力畅跑。',
-        price: 459,
-        category: 'Clothing',
-        imageUrl: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2hvZXN8ZW58MHx8MHx8fDA%3D',
-        salesCount: 156
+        imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8amFja2V0fGVufDB8fDB8fHww',
+        merchant: '官方旗舰店',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'JACKET-001',
+        stock: 150,
+        shippingAddress: {
+          province: '浙江省',
+          city: '杭州市',
+          district: '余杭区',
+          detail: '电商产业园'
+        }
       },
 
       // Books
@@ -175,14 +213,17 @@ async function seedDatabase() {
         description: '精选年度最佳科幻小说，探索未来世界。',
         price: 59,
         category: 'Books',
-        imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJvb2t8ZW58MHx8MHx8fDA%3D'
-      },
-      {
-        name: '编程入门指南',
-        description: '零基础学习编程，涵盖Python, JavaScript等。',
-        price: 79,
-        category: 'Books',
-        imageUrl: 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Ym9va3xlbnwwfHwwfHx8MA%3D%3D'
+        imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJvb2t8ZW58MHx8MHx8fDA%3D',
+        merchant: '官方旗舰店',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'BOOK-001',
+        stock: 500,
+        shippingAddress: {
+          province: '江苏省',
+          city: '南京市',
+          district: '鼓楼区',
+          detail: '文化产业园'
+        }
       },
 
       // Home
@@ -191,28 +232,71 @@ async function seedDatabase() {
         description: '护眼光源，多档调节，现代简约设计。',
         price: 129,
         category: 'Home',
-        imageUrl: 'https://images.unsplash.com/photo-1507473888900-52e1adad5420?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFtcHxlbnwwfHwwfHx8MA%3D%3D'
+        imageUrl: '/images/简约台灯.jpg',
+        merchant: '潮流数码',
+        merchantId: merchant2 ? merchant2._id : null,
+        productCode: 'LAMP-001',
+        stock: 180,
+        salesCount: 320,
+        shippingAddress: {
+          province: '广东省',
+          city: '东莞市',
+          district: '长安镇',
+          detail: '工业区'
+        }
       },
+      // New products for merchants
       {
-        name: '舒适抱枕',
-        description: '柔软亲肤，多种颜色可选，居家必备。',
-        price: 49,
+        name: '北欧简约床头柜',
+        description: '北欧风格，简约实用，耐用材质。',
+        price: 399,
         category: 'Home',
-        imageUrl: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cGlsbG93fGVufDB8fDB8fHww'
+        imageUrl: 'https://images.unsplash.com/photo-1598300063006-69fb0b6c2f3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        merchant: '家居良品',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'CABINET-001',
+        stock: 120,
+        salesCount: 140,
+        shippingAddress: { province: '浙江省', city: '杭州市', district: '余杭区', detail: '家居产业园' }
       },
       {
-        name: '香薰加湿器',
-        description: '静音加湿，七彩夜灯，舒缓身心。',
+        name: '无线蓝牙音箱',
+        description: '便携式音响，重低音，蓝牙5.0连接。',
+        price: 299,
+        category: 'Electronics',
+        imageUrl: 'https://images.unsplash.com/photo-1518441902110-1a59d4f98f47?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        merchant: '潮流数码',
+        merchantId: merchant2 ? merchant2._id : null,
+        productCode: 'SPEAKER-001',
+        stock: 220,
+        salesCount: 460,
+        shippingAddress: { province: '广东省', city: '深圳市', district: '南山区', detail: '科技园' }
+      },
+      {
+        name: '春季印花连衣裙',
+        description: '舒适面料，时尚印花，轻盈飘逸。',
+        price: 199,
+        category: 'Clothing',
+        imageUrl: 'https://images.unsplash.com/photo-1520975911777-9de2f6bdb0a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        merchant: '时尚服饰',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'DRESS-001',
+        stock: 180,
+        salesCount: 260,
+        shippingAddress: { province: '浙江省', city: '杭州市', district: '上城区', detail: '商圈' }
+      },
+      {
+        name: '进口香氛蜡烛',
+        description: '天然香精，持久留香，提升居家氛围。',
         price: 89,
-        category: 'Home',
-        imageUrl: 'https://images.unsplash.com/photo-1608508644127-513d488a87cd?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtaWRpZmllcnxlbnwwfHwwfHx8MA%3D%3D'
-      },
-      {
-        name: '北欧风花瓶',
-        description: '陶瓷材质，简约线条，插花装饰首选。',
-        price: 69,
-        category: 'Home',
-        imageUrl: 'https://images.unsplash.com/photo-1581783342308-f792ca11df53?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8dmFzZXxlbnwwfHwwfHx8MA%3D%3D'
+        category: 'Beauty',
+        imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        merchant: '家居良品',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'CANDLE-001',
+        stock: 340,
+        salesCount: 95,
+        shippingAddress: { province: '江苏省', city: '南京市', district: '鼓楼区', detail: '文化产业园' }
       },
 
       // Beauty
@@ -221,224 +305,259 @@ async function seedDatabase() {
         description: '深层补水，长效保湿，适合各种肤质。',
         price: 199,
         category: 'Beauty',
-        imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3JlYW18ZW58MHx8MHx8fDA%3D'
-      },
-      {
-        name: '香水套装',
-        description: '清新花果香调，持久留香，送礼佳品。',
-        price: 399,
-        category: 'Beauty',
-        imageUrl: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGVyZnVtZXxlbnwwfHwwfHx8MA%3D%3D'
-      },
-      {
-        name: '哑光口红',
-        description: '丝绒质地，显色持久，提升气色。',
-        price: 159,
-        category: 'Beauty',
-        imageUrl: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGlwc3RpY2t8ZW58MHx8MHx8fDA%3D'
-      },
-      {
-        name: '眼影盘',
-        description: '大地色系，粉质细腻，日常百搭。',
-        price: 129,
-        category: 'Beauty',
-        imageUrl: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZXllc2hhZG93fGVufDB8fDB8fHww'
+        imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3JlYW18ZW58MHx8MHx8fDA%3D',
+        merchant: '官方旗舰店',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'CREAM-001',
+        stock: 250,
+        shippingAddress: {
+          province: '上海市',
+          city: '上海市',
+          district: '奉贤区',
+          detail: '美妆产业园'
+        }
       }
     ];
 
     if (productCount === 0) {
       await Product.insertMany(products);
-      console.log('All sample products seeded');
-    } else {
-      // Check and add missing categories
-      const newProducts = [];
-      if (homeCount === 0) {
-        newProducts.push(...products.filter(p => p.category === 'Home'));
-      }
-      if (beautyCount === 0) {
-        newProducts.push(...products.filter(p => p.category === 'Beauty'));
-      }
-      
-      if (newProducts.length > 0) {
-        await Product.insertMany(newProducts);
-        console.log('Added missing category products');
-      }
+      console.log('All enhanced products seeded');
     }
   } catch (error) {
     console.error('Error seeding database:', error);
   }
 }
 
-// Routes
+// === 工具函数 ===
 
-// --- Auth Routes ---
+// 生成物流轨迹的函数
+function generateLogisticsTraces(origin, destination) {
+  const traces = [];
+  const currentTime = new Date();
 
-// Register
+  // 揽收
+  traces.push({
+    time: new Date(currentTime.getTime() - 2 * 24 * 60 * 60 * 1000), // 2天前
+    location: `${origin.city}${origin.district}`,
+    description: '您的订单已被快递员揽收',
+    status: '已揽收'
+  });
+
+  // 到达转运中心
+  traces.push({
+    time: new Date(currentTime.getTime() - 1 * 24 * 60 * 60 * 1000), // 1天前
+    location: `${origin.city}转运中心`,
+    description: '快件已到达转运中心，正在分拣',
+    status: '运输中'
+  });
+
+  // 运输途中
+  traces.push({
+    time: new Date(currentTime.getTime() - 12 * 60 * 60 * 1000), // 12小时前
+    location: '运输途中',
+    description: '快件正在运输中，请耐心等待',
+    status: '运输中'
+  });
+
+  // 到达目的地
+  traces.push({
+    time: new Date(currentTime.getTime() - 6 * 60 * 60 * 1000), // 6小时前
+    location: `${destination.city}转运中心`,
+    description: '快件已到达目的地转运中心',
+    status: '派送中'
+  });
+
+  // 派送中
+  traces.push({
+    time: new Date(currentTime.getTime() - 2 * 60 * 60 * 1000), // 2小时前
+    location: `${destination.city}${destination.district}`,
+    description: '快递员正在派送，请保持电话畅通',
+    status: '派送中'
+  });
+
+  return traces;
+}
+
+// === 路由 ===
+
+// --- 用户认证路由 ---
+
+// 注册
 app.post('/api/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    // Simple validation
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: '邮箱已被注册' });
 
-    // Force role to 'user'
     const user = new User({ name, email, password, role: 'user' });
     await user.save();
-    res.status(201).json({ message: '注册成功', user: { id: user._id, name: user.name, role: user.role } });
+    res.status(201).json({ message: '注册成功', user: { id: user._id, name: user.name, role: user.role, balance: user.balance } });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-// Login
+// 登录
 app.post('/api/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    
+
     if (!user || user.password !== password) {
       return res.status(401).json({ message: '邮箱或密码错误' });
     }
 
-    res.json({ 
-      message: '登录成功', 
-      user: { 
-        id: user._id, 
-        name: user.name, 
-        email: user.email, 
-        role: user.role 
-      } 
+    res.json({
+      message: '登录成功',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        balance: user.balance,
+        merchantInfo: user.merchantInfo
+      }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// --- Product Routes ---
+// --- 商品路由 ---
 
-// Get all products with sorting and filtering
-app.get('/api/products', async (req, res) => {
+// 获取推荐商品（每个分类从销量前3中随机取1个）
+app.get('/api/products/recommended', async (req, res) => {
   try {
-    const { sortBy = 'createdAt', category, search } = req.query;
-    let query = {};
+    // 获取所有分类
+    const categories = await Product.distinct('category');
 
-    // Add category filter
-    if (category) {
-      query.category = category;
+    const recommended = [];
+
+    for (const cat of categories) {
+      // 取该分类销量前3
+      const top3 = await Product.find({ category: cat })
+        .sort({ salesCount: -1, createdAt: -1 })
+        .limit(3)
+        .populate('merchantId', 'name merchantInfo');
+
+      if (top3 && top3.length > 0) {
+        // 随机选一个
+        const pick = top3[Math.floor(Math.random() * top3.length)];
+        recommended.push(pick);
+      }
     }
 
-    // Add search filter
+    res.json(recommended);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 获取所有商品
+app.get('/api/products', async (req, res) => {
+  try {
+    const { category, search, merchant, sortBy = 'createdAt' } = req.query;
+
+    // 构建查询条件
+    const query = {};
+    if (category) query.category = category;
+    if (merchant) query.merchant = new RegExp(merchant, 'i');
+
+    // 模糊搜索
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } }
+        { name: new RegExp(search, 'i') },
+        { description: new RegExp(search, 'i') },
+        { category: new RegExp(search, 'i') },
+        { merchant: new RegExp(search, 'i') },
+        { productCode: new RegExp(search, 'i') }
       ];
     }
 
-    // Define sort options
-    let sortOption = {};
+    // 排序
+    let sort = {};
     switch (sortBy) {
+      case 'salesCount':
+        sort = { salesCount: -1 };
+        break;
       case 'priceAsc':
-        sortOption = { price: 1 };
+        sort = { price: 1 };
         break;
       case 'priceDesc':
-        sortOption = { price: -1 };
-        break;
-      case 'salesCount':
-        sortOption = { salesCount: -1 };
+        sort = { price: -1 };
         break;
       case 'stock':
-        sortOption = { stock: -1 };
+        sort = { stock: -1 };
         break;
-      case 'createdAt':
       default:
-        sortOption = { createdAt: -1 };
-        break;
+        sort = { createdAt: -1 };
     }
 
     const products = await Product.find(query)
-      .populate('merchantId', 'username merchantInfo')
-      .populate('supplierId', 'username merchantInfo')
-      .sort(sortOption);
+      .populate('merchantId', 'name merchantInfo')
+      .sort(sort);
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Get recommended products (based on sales and stock)
-app.get('/api/products/recommended', async (req, res) => {
+// 按分类获取商品
+app.get('/api/products/category/:category', async (req, res) => {
   try {
-    const products = await Product.find({
-      stock: { $gt: 0 }, // Only show products with stock
-      salesCount: { $gte: 5 } // Only products with sales >= 5
-    })
-    .populate('merchantId', 'username merchantInfo')
-    .populate('supplierId', 'username merchantInfo')
-    .sort({ salesCount: -1, stock: -1 }) // Sort by sales, then by stock
-    .limit(8); // Limit to 8 recommendations
+    const { category } = req.params;
+    const products = await Product.find({ category })
+      .populate('merchantId', 'name merchantInfo')
+      .sort({ salesCount: -1 });
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
-    // If not enough products meet criteria, add some with stock
-    if (products.length < 8) {
-      const additionalProducts = await Product.find({
-        _id: { $nin: products.map(p => p._id) },
-        stock: { $gt: 0 }
-      })
-      .populate('merchantId', 'username merchantInfo')
-      .populate('supplierId', 'username merchantInfo')
-      .sort({ createdAt: -1 })
-      .limit(8 - products.length);
+// 搜索商品（模糊搜索）
+app.get('/api/products/search', async (req, res) => {
+  try {
+    const { q: searchQuery } = req.query;
 
-      products.push(...additionalProducts);
+    if (!searchQuery) {
+      return res.status(400).json({ message: '搜索关键词不能为空' });
     }
 
+    const query = {
+      $or: [
+        { name: new RegExp(searchQuery, 'i') },
+        { description: new RegExp(searchQuery, 'i') },
+        { category: new RegExp(searchQuery, 'i') },
+        { merchant: new RegExp(searchQuery, 'i') },
+        { productCode: new RegExp(searchQuery, 'i') }
+      ]
+    };
+
+    const products = await Product.find(query)
+      .populate('merchantId', 'name merchantInfo')
+      .sort({ salesCount: -1 });
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Get single product
+// 获取单个商品
 app.get('/api/products/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
+    const product = await Product.findById(req.params.id)
+      .populate('merchantId', 'name merchantInfo');
+    if (!product) return res.status(404).json({ message: '商品不存在' });
     res.json(product);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Search products endpoint
-app.get('/api/products/search', async (req, res) => {
-  try {
-    const { q } = req.query;
-    if (!q) {
-      return res.status(400).json({ message: 'Search query is required' });
-    }
-
-    const products = await Product.find({
-      $or: [
-        { name: { $regex: q, $options: 'i' } },
-        { description: { $regex: q, $options: 'i' } },
-        { category: { $regex: q, $options: 'i' } },
-        { merchant: { $regex: q, $options: 'i' } },
-        { supplier: { $regex: q, $options: 'i' } }
-      ]
-    })
-    .populate('merchantId', 'username merchantInfo')
-    .populate('supplierId', 'username merchantInfo')
-    .sort({ salesCount: -1, stock: -1 })
-    .limit(10);
-
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Create a new product
+// 创建商品（商家）
 app.post('/api/products', async (req, res) => {
   try {
     const newProduct = new Product(req.body);
@@ -449,270 +568,522 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// Create a new order
-app.post('/api/orders', async (req, res) => {
+// --- 地址管理路由 ---
+
+// 获取用户地址列表
+app.get('/api/addresses/:userId', async (req, res) => {
   try {
-    const { items, shippingAddress, paymentMethod = '余额支付', remarks = '' } = req.body;
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({ message: '订单商品不能为空' });
-    }
-
-    // 计算总价
-    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-
-    // 获取商品详情
-    const productIds = items.map(item => item.productId);
-    const products = await Product.find({ _id: { $in: productIds } });
-
-    if (products.length !== items.length) {
-      return res.status(400).json({ message: '部分商品不存在' });
-    }
-
-    // 检查库存
-    for (const item of items) {
-      const product = products.find(p => p._id.toString() === item.productId);
-      if (!product || product.stock < item.quantity) {
-        return res.status(400).json({
-          message: `商品 "${item.name}" 库存不足，当前库存: ${product?.stock || 0}`
-        });
-      }
-    }
-
-    // 创建订单
-    const orderItems = items.map(item => {
-      const product = products.find(p => p._id.toString() === item.productId);
-      return {
-        productId: item.productId,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        merchant: product.merchant,
-        merchantId: product.merchantId,
-        imageUrl: product.imageUrl
-      };
-    });
-
-    // 根据支付方式设置订单状态
-    const isPaid = paymentMethod === '免支付' || paymentMethod === '余额支付';
-
-    const newOrder = new Order({
-      userId: req.body.userId || null, // 应该从认证中间件获取
-      items: orderItems,
-      total,
-      shippingAddress,
-      paymentInfo: {
-        method: paymentMethod,
-        paidAt: isPaid ? new Date() : null,
-        transactionId: isPaid ? `FREE${Date.now()}${Math.floor(Math.random() * 1000)}` : null
-      },
-      status: isPaid ? '待发货' : '待支付',
-      remarks
-    });
-
-    const savedOrder = await newOrder.save();
-
-    // 如果已支付（包括免支付），则更新库存
-    if (isPaid) {
-      for (const item of items) {
-        await Product.findByIdAndUpdate(item.productId, {
-          $inc: { stock: -item.quantity, salesCount: item.quantity }
-        });
-      }
-    }
-
-    // 如果是免支付，自动创建物流信息
-    if (paymentMethod === '免支付') {
-      // 获取第一个商品的发货地址作为物流起始地址
-      const firstProduct = products[0];
-
-      // 创建物流信息
-      const Logistics = require('./models/Logistics');
-      const logistics = new Logistics({
-        orderId: savedOrder._id,
-        company: '顺丰快递',
-        trackingNumber: `SF${Date.now()}${Math.floor(Math.random() * 1000)}`,
-        origin: {
-          province: firstProduct.shippingAddress.province,
-          city: firstProduct.shippingAddress.city,
-          district: firstProduct.shippingAddress.district,
-          detail: firstProduct.shippingAddress.detail
-        },
-        destination: shippingAddress,
-        status: '已发货',
-        createdAt: new Date(),
-        shippedAt: new Date()
-      });
-
-      const savedLogistics = await logistics.save();
-
-      // 返回订单和物流信息
-      res.status(201).json({
-        order: savedOrder,
-        logistics: savedLogistics,
-        message: '订单创建成功，已自动安排发货'
-      });
-    } else {
-      // 普通支付方式，只返回订单信息
-      res.status(201).json({
-        order: savedOrder,
-        message: '订单创建成功'
-      });
-    }
-  } catch (error) {
-    console.error('创建订单失败:', error);
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Get all orders
-app.get('/api/orders', async (req, res) => {
-  try {
-    // 在实际应用中，应该根据当前登录用户筛选
-    // const userId = req.user.id; // 需要认证中间件
-    const orders = await Order.find()
-      .populate('userId', 'name email')
-      .populate('items.productId', 'name imageUrl')
-      .populate('items.merchantId', 'name')
-      .sort({ createdAt: -1 });
-    res.json(orders);
+    const addresses = await Address.find({ userId: req.params.userId }).sort({ isDefault: -1, createdAt: -1 });
+    res.json(addresses);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Get single order
+// 添加新地址
+app.post('/api/addresses', async (req, res) => {
+  try {
+    const { userId, isDefault } = req.body;
+
+    // 如果设为默认地址，先取消其他默认地址
+    if (isDefault) {
+      await Address.updateMany({ userId, isDefault: true }, { isDefault: false });
+    }
+
+    const newAddress = new Address(req.body);
+    const savedAddress = await newAddress.save();
+    res.status(201).json(savedAddress);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// 更新地址
+app.put('/api/addresses/:id', async (req, res) => {
+  try {
+    const { isDefault, userId } = req.body;
+
+    // 如果设为默认地址，先取消其他默认地址
+    if (isDefault) {
+      await Address.updateMany({ userId, isDefault: true }, { isDefault: false });
+    }
+
+    const updatedAddress = await Address.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedAddress) return res.status(404).json({ message: '地址不存在' });
+    res.json(updatedAddress);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// 删除地址
+app.delete('/api/addresses/:id', async (req, res) => {
+  try {
+    const address = await Address.findByIdAndDelete(req.params.id);
+    if (!address) return res.status(404).json({ message: '地址不存在' });
+    res.json({ message: '地址已删除' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// --- 订单路由 ---
+
+// 创建订单（原子性事务处理）
+app.post('/api/orders', async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { userId, items, shippingAddress, remarks } = req.body;
+
+    // 验证用户
+    const user = await User.findById(userId).session(session);
+    if (!user) {
+      throw new Error('用户不存在');
+    }
+
+    // 计算总金额并检查库存
+    let total = 0;
+    const populatedItems = [];
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId).session(session);
+      if (!product) {
+        throw new Error(`商品 ${item.productId} 不存在`);
+      }
+
+      if (product.stock < item.quantity) {
+        throw new Error(`商品 ${product.name} 库存不足，当前库存: ${product.stock}`);
+      }
+
+      // 添加商家信息到订单项
+      populatedItems.push({
+        productId: product._id,
+        name: product.name,
+        price: product.price,
+        quantity: item.quantity,
+        merchant: product.merchant,
+        merchantId: product.merchantId
+      });
+
+      total += product.price * item.quantity;
+
+      // 扣减库存
+      product.stock -= item.quantity;
+      product.salesCount += item.quantity;
+      await product.save({ session });
+    }
+
+    // 检查用户余额
+    if (user.balance < total) {
+      throw new Error('余额不足，请充值');
+    }
+
+    // 扣减用户余额
+    user.balance -= total;
+    await user.save({ session });
+
+    // 更新商家销售额
+    for (const item of populatedItems) {
+      if (item.merchantId) {
+        await User.findByIdAndUpdate(
+          item.merchantId,
+          { $inc: { 'merchantInfo.totalSales': item.quantity } },
+          { session }
+        );
+      }
+    }
+
+    // 创建订单
+    const newOrder = new Order({
+      userId,
+      items: populatedItems,
+      total,
+      status: '已支付',
+      shippingAddress,
+      remarks,
+      paymentInfo: {
+        method: '余额支付',
+        paidAt: new Date(),
+        transactionId: `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`
+      }
+    });
+
+    const savedOrder = await newOrder.save({ session });
+
+    // 创建物流信息
+    const logistics = new Logistics({
+      orderId: savedOrder._id,
+      carrier: '顺丰速运',
+      origin: populatedItems[0]?.merchantId ? {
+        province: '广东省',
+        city: '深圳市',
+        district: '南山区',
+        detail: '科技园'
+      } : {
+        province: '广东省',
+        city: '广州市',
+        district: '天河区',
+        detail: '电商产业园'
+      },
+      destination: shippingAddress,
+      status: '已揽收',
+      traces: generateLogisticsTraces(
+        {
+          province: '广东省',
+          city: '深圳市',
+          district: '南山区',
+          detail: '科技园'
+        },
+        shippingAddress
+      ),
+      estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3天后
+    });
+
+    await logistics.save({ session });
+
+    await session.commitTransaction();
+
+    res.status(201).json({
+      order: savedOrder,
+      logistics: logistics,
+      message: '订单创建成功'
+    });
+
+  } catch (error) {
+    await session.abortTransaction();
+    console.error('Order creation error:', error);
+    res.status(400).json({ message: error.message });
+  } finally {
+    session.endSession();
+  }
+});
+
+// 获取用户订单
+app.get('/api/orders/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { status, page = 1, limit = 10 } = req.query;
+
+    const query = { userId };
+    if (status) query.status = status;
+
+    const orders = await Order.find(query)
+      .populate('items.productId', 'name imageUrl')
+      .populate('items.merchantId', 'name')
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await Order.countDocuments(query);
+
+    res.json({
+      orders,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 获取单个订单详情
 app.get('/api/orders/:id', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate('userId', 'name email')
       .populate('items.productId', 'name imageUrl')
-      .populate('items.merchantId', 'name');
+      .populate('items.merchantId', 'name merchantInfo');
 
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-    res.json(order);
+    if (!order) return res.status(404).json({ message: '订单不存在' });
+
+    // 获取物流信息
+    const logistics = await Logistics.findOne({ orderId: order._id });
+
+    res.json({
+      order,
+      logistics
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Pay order
-app.post('/api/orders/:id/pay', async (req, res) => {
+// 获取订单物流信息
+app.get('/api/logistics/:orderId', async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
+    const logistics = await Logistics.findOne({ orderId: req.params.orderId })
+      .populate('orderId', 'orderNumber');
 
-    if (order.status !== '待支付') {
-      return res.status(400).json({ message: '订单状态不允许支付' });
-    }
+    if (!logistics) return res.status(404).json({ message: '物流信息不存在' });
 
-    // 更新订单状态和支付信息
-    order.status = '已支付';
-    order.paymentInfo.paidAt = new Date();
-    order.paymentInfo.transactionId = `PAY${Date.now()}${Math.floor(Math.random() * 1000)}`;
-
-    await order.save();
-
-    // 更新库存
-    for (const item of order.items) {
-      await Product.findByIdAndUpdate(item.productId, {
-        $inc: { stock: -item.quantity, salesCount: item.quantity }
-      });
-    }
-
-    res.json({ message: '支付成功', order });
+    res.json(logistics);
   } catch (error) {
-    console.error('支付失败:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 更新订单状态
+app.put('/api/orders/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    if (!order) return res.status(404).json({ message: '订单不存在' });
+
+    // 如果订单状态变为发货中，更新物流状态
+    if (status === '发货中') {
+      await Logistics.findOneAndUpdate(
+        { orderId: order._id },
+        { status: '运输中' }
+      );
+    }
+
+    res.json(order);
+  } catch (error) {
     res.status(400).json({ message: error.message });
   }
 });
 
-// Cancel order
+// 支付订单
+app.post('/api/orders/:id/pay', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: '订单不存在' });
+    
+    if (order.status !== '待支付') {
+      return res.status(400).json({ message: '订单状态不正确，无法支付' });
+    }
+
+    order.status = '已支付';
+    order.paymentInfo = {
+      method: '在线支付',
+      paidAt: new Date(),
+      transactionId: `PAY${Date.now()}`
+    };
+    
+    await order.save();
+    res.json({ message: '支付成功', order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 取消订单
 app.post('/api/orders/:id/cancel', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-
+    if (!order) return res.status(404).json({ message: '订单不存在' });
+    
     if (order.status !== '待支付') {
-      return res.status(400).json({ message: '只有待支付订单可以取消' });
+      return res.status(400).json({ message: '只能取消待支付的订单' });
+    }
+
+    // 恢复库存 (简单实现，不考虑并发)
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.productId, { 
+        $inc: { stock: item.quantity, salesCount: -item.quantity } 
+      });
     }
 
     order.status = '已取消';
     await order.save();
-
     res.json({ message: '订单已取消', order });
   } catch (error) {
-    console.error('取消订单失败:', error);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Ship order
-app.post('/api/orders/:id/ship', async (req, res) => {
-  try {
-    const { company, trackingNumber } = req.body;
-    const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-
-    if (order.status !== '已支付') {
-      return res.status(400).json({ message: '只有已支付订单可以发货' });
-    }
-
-    order.status = '发货中';
-    order.logistics = {
-      company: company || '顺丰快递',
-      trackingNumber: trackingNumber || `SF${Date.now()}${Math.floor(Math.random() * 1000)}`,
-      shippedAt: new Date(),
-      status: '已发货'
-    };
-
-    await order.save();
-
-    res.json({ message: '订单已发货', order });
-  } catch (error) {
-    console.error('发货失败:', error);
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Confirm order received
+// 确认收货
 app.post('/api/orders/:id/confirm', async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-    if (!order) return res.status(404).json({ message: 'Order not found' });
-
-    if (order.status !== '发货中') {
-      return res.status(400).json({ message: '只有发货中订单可以确认收货' });
-    }
-
+    if (!order) return res.status(404).json({ message: '订单不存在' });
+    
     order.status = '已完成';
-    if (order.logistics) {
-      order.logistics.status = '已签收';
-      order.logistics.deliveredAt = new Date();
-    }
+    
+    // 更新物流状态
+    await Logistics.findOneAndUpdate(
+      { orderId: order._id },
+      { status: '已签收', deliveredAt: new Date() }
+    );
 
     await order.save();
-
     res.json({ message: '确认收货成功', order });
   } catch (error) {
-    console.error('确认收货失败:', error);
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Create a new user
-app.post('/api/users', async (req, res) => {
+// --- 商家路由 ---
+
+// 获取商家列表
+app.get('/api/merchants', async (req, res) => {
   try {
-    const newUser = new User(req.body);
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    const merchants = await User.find({ role: 'merchant' })
+      .select('name email merchantInfo')
+      .sort({ 'merchantInfo.totalSales': -1 });
+
+    res.json(merchants);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
-// Get all users
-app.get('/api/users', async (req, res) => {
+// 获取单个商家详情
+app.get('/api/merchants/:id', async (req, res) => {
+  try {
+    const merchant = await User.findOne({ _id: req.params.id, role: 'merchant' })
+      .select('name email merchantInfo');
+    if (!merchant) return res.status(404).json({ message: '商家不存在' });
+    res.json(merchant);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 按商家搜索商品
+app.get('/api/products/merchant/:merchantId', async (req, res) => {
+  try {
+    const { merchantId } = req.params;
+    const products = await Product.find({ merchantId })
+      .populate('merchantId', 'name merchantInfo')
+      .sort({ salesCount: -1 });
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// --- 聚合操作路由 ---
+
+// 商品统计
+app.get('/api/analytics/products', async (req, res) => {
+  try {
+    const stats = await Product.aggregate([
+      {
+        $group: {
+          _id: '$category',
+          totalProducts: { $sum: 1 },
+          totalStock: { $sum: '$stock' },
+          avgPrice: { $avg: '$price' },
+          totalSales: { $sum: '$salesCount' }
+        }
+      }
+    ]);
+
+    const topProducts = await Product.find()
+      .sort({ salesCount: -1 })
+      .limit(10)
+      .populate('merchantId', 'name');
+
+    const lowStockProducts = await Product.find({ stock: { $lt: 10 } })
+      .sort({ stock: 1 });
+
+    res.json({
+      categoryStats: stats,
+      topProducts,
+      lowStockProducts
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 订单统计
+app.get('/api/analytics/orders', async (req, res) => {
+  try {
+    const { period = 'month' } = req.query;
+
+    let dateFormat;
+    switch (period) {
+      case 'day':
+        dateFormat = { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } };
+        break;
+      case 'week':
+        dateFormat = { $dateToString: { format: '%Y-%U', date: '$createdAt' } };
+        break;
+      case 'month':
+        dateFormat = { $dateToString: { format: '%Y-%m', date: '$createdAt' } };
+        break;
+      default:
+        dateFormat = { $dateToString: { format: '%Y-%m', date: '$createdAt' } };
+    }
+
+    const revenueByPeriod = await Order.aggregate([
+      {
+        $group: {
+          _id: dateFormat,
+          revenue: { $sum: '$total' },
+          orderCount: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+
+    const statusStats = await Order.aggregate([
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 },
+          totalRevenue: { $sum: '$total' }
+        }
+      }
+    ]);
+
+    res.json({
+      revenueByPeriod,
+      statusStats
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// --- 管理员路由 ---
+
+// 获取所有订单（管理员）
+app.get('/api/admin/orders', async (req, res) => {
+  try {
+    const { page = 1, limit = 20, status } = req.query;
+
+    const query = {};
+    if (status) query.status = status;
+
+    const orders = await Order.find(query)
+      .populate('userId', 'name email')
+      .populate('items.productId', 'name')
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await Order.countDocuments(query);
+
+    res.json({
+      orders,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 获取所有用户（管理员）
+app.get('/api/admin/users', async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
     res.json(users);
@@ -721,129 +1092,12 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-// --- Address Routes ---
-
-// Get user addresses
-app.get('/api/addresses', async (req, res) => {
-  try {
-    // 在实际应用中，应该根据当前登录用户筛选
-    // const userId = req.user.id; // 需要认证中间件
-    const addresses = await Address.find().sort({ order: 1, createdAt: -1 });
-    res.json(addresses);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Get addresses by userId
-app.get('/api/addresses/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const addresses = await Address.find({ userId }).sort({ isDefault: -1, order: 1, createdAt: -1 });
-    res.json(addresses);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Create new address
-app.post('/api/addresses', async (req, res) => {
-  try {
-    const { userId, ...addressData } = req.body;
-
-    // If this is default, unset other default addresses
-    if (addressData.isDefault) {
-      await Address.updateMany({ userId }, { isDefault: false });
-    }
-
-    // Get the highest order for this user and set new order
-    const maxOrder = await Address.findOne({ userId }).sort({ order: -1 });
-    addressData.order = maxOrder ? maxOrder.order + 1 : 1;
-
-    const address = new Address({ userId, ...addressData });
-    const savedAddress = await address.save();
-    res.status(201).json(savedAddress);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Update address
-app.put('/api/addresses/:id', async (req, res) => {
-  try {
-    const { userId, ...addressData } = req.body;
-
-    // If this is default, unset other default addresses
-    if (addressData.isDefault) {
-      await Address.updateMany({ userId, _id: { $ne: req.params.id } }, { isDefault: false });
-    }
-
-    const address = await Address.findByIdAndUpdate(
-      req.params.id,
-      addressData,
-      { new: true, runValidators: true }
-    );
-
-    if (!address) return res.status(404).json({ message: 'Address not found' });
-    res.json(address);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Update address order
-app.put('/api/addresses/:id/order', async (req, res) => {
-  try {
-    const { order } = req.body;
-    const address = await Address.findByIdAndUpdate(
-      req.params.id,
-      { order },
-      { new: true, runValidators: true }
-    );
-
-    if (!address) return res.status(404).json({ message: 'Address not found' });
-    res.json(address);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Update addresses order (bulk update)
-app.put('/api/addresses/reorder', async (req, res) => {
-  try {
-    const { addresses } = req.body; // array of [{id, order}]
-
-    const bulkOps = addresses.map(({ id, order }) => ({
-      updateOne: {
-        filter: { _id: id },
-        update: { order }
-      }
-    }));
-
-    await Address.bulkWrite(bulkOps);
-    res.json({ message: 'Address order updated successfully' });
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Delete address
-app.delete('/api/addresses/:id', async (req, res) => {
-  try {
-    const address = await Address.findByIdAndDelete(req.params.id);
-    if (!address) return res.status(404).json({ message: 'Address not found' });
-    res.json({ message: 'Address deleted' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// Delete a user
-app.delete('/api/users/:id', async (req, res) => {
+// 删除用户（管理员）
+app.delete('/api/admin/users/:id', async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ message: 'User deleted' });
+    if (!user) return res.status(404).json({ message: '用户不存在' });
+    res.json({ message: '用户已删除' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -856,4 +1110,5 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+  console.log('Admin Account: 12345@123.com / 12345');
 });

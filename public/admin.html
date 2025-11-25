@@ -77,12 +77,43 @@
             }
             
             fetchUsers();
+
+            // Product Form Handler
+            const productForm = document.getElementById('adminProductForm');
+            if (productForm) {
+                productForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const name = document.getElementById('prodName').value;
+                    const price = parseFloat(document.getElementById('prodPrice').value);
+                    const description = document.getElementById('prodDesc').value;
+                    const imageUrl = document.getElementById('prodImage').value || 'https://via.placeholder.com/300';
+                    const category = document.getElementById('prodCategory').value;
+
+                    try {
+                        const res = await fetch('/api/products', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name, price, description, imageUrl, category, merchant: '官方自营' })
+                        });
+                        if (res.ok) {
+                            alert('商品发布成功！');
+                            productForm.reset();
+                        } else {
+                            const err = await res.json();
+                            alert('发布失败: ' + (err.message || '未知错误'));
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert('网络错误');
+                    }
+                });
+            }
         });
 
         async function fetchUsers() {
             const list = document.getElementById('userList');
             try {
-                const res = await fetch('/api/users');
+                const res = await fetch('/api/admin/users');
                 const users = await res.json();
                 
                 if (users.length === 0) {
@@ -107,7 +138,7 @@
         async function deleteUser(id) {
             if (!confirm('确定要删除该用户吗？')) return;
             try {
-                const res = await fetch(`/api/users/${id}`, { method: 'DELETE' });
+                const res = await fetch(`/api/admin/users/${id}`, { method: 'DELETE' });
                 if (res.ok) {
                     fetchUsers();
                 } else {
