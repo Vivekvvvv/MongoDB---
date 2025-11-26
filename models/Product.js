@@ -71,6 +71,11 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  // 搜索关键词 - 用于模糊搜索
+  searchKeywords: {
+    type: String,
+    default: ''
+  },
   createdAt: {
     type: Date,
     default: Date.now

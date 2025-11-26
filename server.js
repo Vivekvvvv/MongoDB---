@@ -110,12 +110,17 @@ async function seedDatabase() {
       }
     }
 
-    // 获取商家ID用于商品创建
-    const merchant1 = await User.findOne({ email: 'merchant1@shop.com' });
-    const merchant2 = await User.findOne({ email: 'merchant2@shop.com' });
+    // 获取所有商家并建立名称/邮箱到 merchantId 的映射
+    const merchantDocs = await User.find({ role: 'merchant' });
+    const merchantMap = {};
+    merchantDocs.forEach(m => {
+      const shopName = m.merchantInfo && m.merchantInfo.shopName ? m.merchantInfo.shopName : m.name;
+      merchantMap[shopName] = m._id;
+      merchantMap[m.email] = m._id;
+      merchantMap[m.name] = m._id;
+    });
 
-    // Seed Products
-    const productCount = await Product.countDocuments();
+    // Seed Products - 强制刷新数据
 
     const products = [
       // Electronics - 官方旗舰店
@@ -126,9 +131,11 @@ async function seedDatabase() {
         category: 'Electronics',
         imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wfGVufDB8fDB8fHww',
         merchant: '官方旗舰店',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'LAPTOP-001',
         stock: 50,
+        salesCount: 120,
+        searchKeywords: '电脑,笔记本,电脑办公,游戏本,联想,戴尔,华硕,电脑配件,电子产品,办公设备',
         shippingAddress: {
           province: '广东省',
           city: '深圳市',
@@ -143,9 +150,11 @@ async function seedDatabase() {
         category: 'Electronics',
         imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
         merchant: '潮流数码',
-        merchantId: merchant2 ? merchant2._id : null,
+        merchantId: null,
         productCode: 'HEADPHONE-001',
         stock: 100,
+        salesCount: 450,
+        searchKeywords: '耳机,降噪耳机,无线耳机,蓝牙耳机,音乐,耳机音响,数码配件,电子设备,音频设备',
         shippingAddress: {
           province: '北京市',
           city: '北京市',
@@ -160,9 +169,11 @@ async function seedDatabase() {
         category: 'Electronics',
         imageUrl: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2V5Ym9hcmR8ZW58MHx8MHx8fDA%3D',
         merchant: '潮流数码',
-        merchantId: merchant2 ? merchant2._id : null,
+        merchantId: null,
         productCode: 'KEYBOARD-001',
         stock: 200,
+        salesCount: 300,
+        searchKeywords: '键盘,机械键盘,游戏键盘,电竞装备,电脑配件,外设,RGB背光,青轴,茶轴,红轴',
         shippingAddress: {
           province: '上海市',
           city: '上海市',
@@ -179,9 +190,11 @@ async function seedDatabase() {
         category: 'Clothing',
         imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dHNoaXJ0fGVufDB8fDB8fHww',
         merchant: '官方旗舰店',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'TSHIRT-001',
         stock: 300,
+        salesCount: 800,
+        searchKeywords: 'T恤,纯棉T恤,衣服,服装,上衣,休闲装,夏季服装,百搭单品,男女T恤,时尚服装',
         shippingAddress: {
           province: '浙江省',
           city: '杭州市',
@@ -196,9 +209,11 @@ async function seedDatabase() {
         category: 'Clothing',
         imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8amFja2V0fGVufDB8fDB8fHww',
         merchant: '官方旗舰店',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'JACKET-001',
         stock: 150,
+        salesCount: 250,
+        searchKeywords: '夹克,牛仔夹克,外套,服装,春秋装,时尚单品,复古风,牛仔服,上衣,外套',
         shippingAddress: {
           province: '浙江省',
           city: '杭州市',
@@ -215,9 +230,11 @@ async function seedDatabase() {
         category: 'Books',
         imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJvb2t8ZW58MHx8MHx8fDA%3D',
         merchant: '官方旗舰店',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'BOOK-001',
         stock: 500,
+        salesCount: 600,
+        searchKeywords: '书,书籍,小说,科幻小说,文学,阅读,图书,科幻,未来,故事集,文学作品',
         shippingAddress: {
           province: '江苏省',
           city: '南京市',
@@ -234,10 +251,11 @@ async function seedDatabase() {
         category: 'Home',
         imageUrl: '/images/简约台灯.jpg',
         merchant: '潮流数码',
-        merchantId: merchant2 ? merchant2._id : null,
+        merchantId: null,
         productCode: 'LAMP-001',
         stock: 180,
         salesCount: 320,
+        searchKeywords: '台灯,灯具,照明,护眼台灯,家居装饰,灯具,卧室灯,书房台灯,LED灯,家居用品',
         shippingAddress: {
           province: '广东省',
           city: '东莞市',
@@ -250,12 +268,13 @@ async function seedDatabase() {
         description: '记忆棉内芯，亲肤面料，支撑颈椎，缓解疲劳。',
         price: 79,
         category: 'Home',
-        imageUrl: 'https://pic.rmb.bdstatic.com/bjh/news/f88d5905e092e01432f873acfc9ef186.png',
+        imageUrl: '/images/抱枕.jpg',
         merchant: '家居良品',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'PILLOW-001',
         stock: 250,
         salesCount: 180,
+        searchKeywords: '抱枕,枕头,靠枕,记忆棉,家居装饰,沙发垫,床上用品,颈椎枕,舒适抱枕,家居配件',
         shippingAddress: {
           province: '浙江省',
           city: '杭州市',
@@ -268,12 +287,13 @@ async function seedDatabase() {
         description: '超声波雾化，七彩灯光，静音设计，改善室内空气质量。',
         price: 159,
         category: 'Home',
-        imageUrl: 'https://images.unsplash.com/photo-1579318255652-f0a052602a11?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtaWRpZmllcnxlbnwwfHwwfHx8MA%3D%3D',
+        imageUrl: 'https://miaobi-lite.bj.bcebos.com/miaobi/5mao/b%27LV8xNzM1NzAwNDYyLjc5ODU1OV8xNzM1NzAwNDYzLjI5MzQ2NQ%3D%3D%27/1.png',
         merchant: '家居良品',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'HUMIDIFIER-001',
         stock: 150,
         salesCount: 220,
+        searchKeywords: '加湿器,香薰,空气净化,湿度调节,家居电器,超声波加湿器,静音加湿器,七彩灯,室内加湿,家居小家电',
         shippingAddress: {
           province: '广东省',
           city: '深圳市',
@@ -286,12 +306,13 @@ async function seedDatabase() {
         description: '简约北欧设计，陶瓷材质，花艺装饰，提升居家品味。',
         price: 89,
         category: 'Home',
-        imageUrl: 'https://images.unsplash.com/photo-1559159118-e31f47052722?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dmFzZXxlbnwwfHwwfHx8MA%3D%3D',
+        imageUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.alicdn.com%2Fimgextra%2Fi1%2F50983440%2FO1CN01pH84Qd1bHZ1BbgBFC_%21%2150983440.jpg&refer=http%3A%2F%2Fimg.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1766650902&t=bcaad8855712a2b76f888fcaf6d164d5',
         merchant: '家居良品',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'VASE-001',
         stock: 200,
         salesCount: 95,
+        searchKeywords: '花瓶,花器,北欧风,家居装饰,陶瓷花瓶,插花,花艺装饰,简约花瓶,居家装饰品,装饰品',
         shippingAddress: {
           province: '江苏省',
           city: '苏州市',
@@ -305,12 +326,13 @@ async function seedDatabase() {
         description: '北欧风格，简约实用，耐用材质。',
         price: 399,
         category: 'Home',
-        imageUrl: 'https://images.unsplash.com/photo-1598300063006-69fb0b6c2f3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        imageUrl: 'https://img0.baidu.com/it/u=4172668877,1101055297&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
         merchant: '家居良品',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'CABINET-001',
         stock: 120,
         salesCount: 140,
+        searchKeywords: '床头柜,柜子,北欧风,简约家具,卧室家具,收纳柜,床头收纳,家居柜,北欧家具,木制家具',
         shippingAddress: { province: '浙江省', city: '杭州市', district: '余杭区', detail: '家居产业园' }
       },
       {
@@ -318,12 +340,13 @@ async function seedDatabase() {
         description: '便携式音响，重低音，蓝牙5.0连接。',
         price: 299,
         category: 'Electronics',
-        imageUrl: 'https://images.unsplash.com/photo-1518441902110-1a59d4f98f47?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        imageUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.alicdn.com%2Fimgextra%2Fi2%2F2810093165%2FO1CN011SIcFd1ZFcXzKPtKl_%21%212810093165.jpg&refer=http%3A%2F%2Fimg.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1766650977&t=4c808bafb2c3ed8ecbd13ae640b97b91',
         merchant: '潮流数码',
-        merchantId: merchant2 ? merchant2._id : null,
+        merchantId: null,
         productCode: 'SPEAKER-001',
         stock: 220,
         salesCount: 460,
+        searchKeywords: '音箱,蓝牙音箱,音响,无线音箱,便携音箱,重低音,蓝牙5.0,数码音响,音乐播放器,电子设备',
         shippingAddress: { province: '广东省', city: '深圳市', district: '南山区', detail: '科技园' }
       },
       {
@@ -331,12 +354,13 @@ async function seedDatabase() {
         description: '舒适面料，时尚印花，轻盈飘逸。',
         price: 199,
         category: 'Clothing',
-        imageUrl: 'https://images.unsplash.com/photo-1520975911777-9de2f6bdb0a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        imageUrl: 'https://img2.baidu.com/it/u=3802551896,186697424&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=750',
         merchant: '时尚服饰',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'DRESS-001',
         stock: 180,
         salesCount: 260,
+        searchKeywords: '连衣裙,裙子,印花裙,女装,春装,时尚服饰,女性服装,夏季连衣裙,长裙,连衣裙',
         shippingAddress: { province: '浙江省', city: '杭州市', district: '上城区', detail: '商圈' }
       },
       {
@@ -344,12 +368,13 @@ async function seedDatabase() {
         description: '天然香精，持久留香，提升居家氛围。',
         price: 89,
         category: 'Beauty',
-        imageUrl: 'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+        imageUrl: '/images/香氛蜡烛.jpg',
         merchant: '家居良品',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'CANDLE-001',
         stock: 340,
         salesCount: 95,
+        searchKeywords: '蜡烛,香氛蜡烛,香薰,进口蜡烛,家居香氛,香薰蜡烛,天然香精,装饰蜡烛,香氛产品,香氛',
         shippingAddress: { province: '江苏省', city: '南京市', district: '鼓楼区', detail: '文化产业园' }
       },
 
@@ -361,22 +386,84 @@ async function seedDatabase() {
         category: 'Beauty',
         imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3JlYW18ZW58MHx8MHx8fDA%3D',
         merchant: '官方旗舰店',
-        merchantId: merchant1 ? merchant1._id : null,
+        merchantId: null,
         productCode: 'CREAM-001',
         stock: 250,
+        salesCount: 400,
+        searchKeywords: '面霜,保湿面霜,护肤品,面霜乳液,面部护理,保湿,化妆品,美容产品,护肤霜,面部保湿',
         shippingAddress: {
           province: '上海市',
           city: '上海市',
           district: '奉贤区',
           detail: '美妆产业园'
         }
+        }
+      ,
+      // 额外新增商品
+      {
+        name: '便携移动电源 20000mAh',
+        description: '高密度电芯，双向快充，支持手机与平板多次充电。',
+        price: 149,
+        category: 'Electronics',
+        imageUrl: '/images/充电宝.jpg',
+        merchant: '潮流数码',
+        productCode: 'POWERBANK-001',
+        stock: 400,
+        salesCount: 550,
+        searchKeywords: '移动电源,充电宝,便携电源,快充,USB-C,20000mAh,数码配件',
+        shippingAddress: { province: '广东省', city: '深圳市', district: '南山区', detail: '科技园' }
+      },
+      {
+        name: '休闲连帽卫衣',
+        description: '加绒舒适，宽松版型，适合日常与运动穿搭。',
+        price: 159,
+        category: 'Clothing',
+        imageUrl: '/images/连帽卫衣.jpg',
+        merchant: '时尚服饰',
+        productCode: 'HOODIE-001',
+        stock: 260,
+        salesCount: 320,
+        searchKeywords: '卫衣,连帽卫衣,休闲服,运动风,外套,秋冬服装',
+        shippingAddress: { province: '浙江省', city: '杭州市', district: '上城区', detail: '商圈' }
+      },
+      {
+        name: '多功能收纳箱（可折叠）',
+        description: '防水材质，可折叠，适合衣物与杂物收纳，节省空间。',
+        price: 69,
+        category: 'Home',
+        imageUrl: '/images/多功能收纳箱.jpg',
+        merchant: '家居良品',
+        productCode: 'STORAGE-001',
+        stock: 500,
+        salesCount: 700,
+        searchKeywords: '收纳箱,收纳,折叠收纳,家居收纳,整理箱,储物盒',
+        shippingAddress: { province: '浙江省', city: '杭州市', district: '余杭区', detail: '家居产业园' }
+      },
+      {
+        name: '智能手表（心率+血氧监测）',
+        description: '运动追踪与健康监测，支持消息提醒与多种表盘。',
+        price: 499,
+        category: 'Electronics',
+        imageUrl: '/images/智能手表.jpg',
+        merchant: '官方旗舰店',
+        productCode: 'SMARTWATCH-001',
+        stock: 180,
+        salesCount: 280,
+        searchKeywords: '智能手表,手环,运动手表,心率,血氧,健康监测,智能穿戴',
+        shippingAddress: { province: '广东省', city: '深圳市', district: '南山区', detail: '科技园' }
       }
     ];
 
-    if (productCount === 0) {
-      await Product.insertMany(products);
-      console.log('All enhanced products seeded');
-    }
+    // 为每个产品自动填充 merchantId（根据 product.merchant 名称匹配）
+    products.forEach(p => {
+      if (!p.merchantId) {
+        p.merchantId = merchantMap[p.merchant] || null;
+      }
+    });
+
+    // 清空现有产品数据并重新插入
+    await Product.deleteMany({});
+    await Product.insertMany(products);
   } catch (error) {
     console.error('Error seeding database:', error);
   }
@@ -524,7 +611,8 @@ app.get('/api/products', async (req, res) => {
         { description: new RegExp(search, 'i') },
         { category: new RegExp(search, 'i') },
         { merchant: new RegExp(search, 'i') },
-        { productCode: new RegExp(search, 'i') }
+        { productCode: new RegExp(search, 'i') },
+        { searchKeywords: new RegExp(search, 'i') }
       ];
     }
 
@@ -585,7 +673,8 @@ app.get('/api/products/search', async (req, res) => {
         { description: new RegExp(searchQuery, 'i') },
         { category: new RegExp(searchQuery, 'i') },
         { merchant: new RegExp(searchQuery, 'i') },
-        { productCode: new RegExp(searchQuery, 'i') }
+        { productCode: new RegExp(searchQuery, 'i') },
+        { searchKeywords: new RegExp(searchQuery, 'i') }
       ]
     };
 

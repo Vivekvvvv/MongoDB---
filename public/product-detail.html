@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全部商品 - 简易电商平台</title>
+    <title>商品详情 - 简易电商平台</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -16,28 +16,14 @@
             <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
         </div>
 
-        <div class="category-filter" style="margin: 0 20px;">
-            <div class="modern-select">
-                <select id="categoryFilter" onchange="filterByCategory()">
-                    <option value="">所有分类</option>
-                    <option value="Electronics">电子产品</option>
-                    <option value="Clothing">服装</option>
-                    <option value="Books">书籍</option>
-                    <option value="Home">家居</option>
-                    <option value="Beauty">美妆</option>
-                </select>
-            </div>
-        </div>
-
         <div class="nav-actions">
             <div class="nav-item" onclick="window.location.href='/'">
                 <i class="fas fa-home"></i> 首页
             </div>
-            <div class="nav-item" onclick="window.location.href='recommended.html'">
-                <i class="fas fa-star"></i> 推荐商品
+            <div class="nav-item" onclick="window.location.href='products.html'">
+                <i class="fas fa-th"></i> 全部商品
             </div>
 
-            <!-- User info and admin link will be injected by JS -->
             <div class="user-menu">
                 <div class="user-info" onclick="toggleUserMenu()">
                     <i class="fas fa-user"></i>
@@ -70,36 +56,12 @@
     </nav>
 
     <div class="container">
-        <div class="section-header">
-            <h2>全部商品</h2>
-            <div class="filter-controls">
-                <div>
-                    <span class="filter-label">排序方式：</span>
-                    <div class="modern-select">
-                        <select id="sortBy" onchange="sortProducts()">
-                            <option value="createdAt">最新上架</option>
-                            <option value="salesCount">销量最高</option>
-                            <option value="priceAsc">价格从低到高</option>
-                            <option value="priceDesc">价格从高到低</option>
-                            <option value="stock">库存最多</option>
-                        </select>
-                    </div>
-                </div>
-                <button class="btn-refresh" onclick="loadProducts()">
-                    <i class="fas fa-sync-alt"></i>
-                    刷新商品
-                </button>
+        <div id="productDetailContainer" class="product-detail-container">
+            <div style="text-align: center; padding: 50px;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 3em; color: #3498db;"></i>
+                <p style="margin-top: 20px; color: #7f8c8d;">正在加载商品详情...</p>
             </div>
         </div>
-
-        <section id="allProducts">
-            <div id="productList" class="product-grid">
-                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
-                    <i class="fas fa-spinner fa-spin" style="font-size: 2em; color: #3498db;"></i>
-                    <p style="margin-top: 15px; color: #7f8c8d;">正在加载商品...</p>
-                </div>
-            </div>
-        </section>
     </div>
 
     <!-- Shopping Cart Sidebar -->
@@ -109,7 +71,6 @@
             <button onclick="toggleCart()" class="close-cart">&times;</button>
         </div>
         <div id="cartItems" class="cart-items">
-            <!-- Cart items here -->
             <p class="empty-cart">购物车是空的</p>
         </div>
         <div class="cart-footer">
@@ -121,5 +82,24 @@
     <div id="overlay" class="overlay" onclick="closeAllOverlays()"></div>
 
     <script src="app.js"></script>
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            if (productId) {
+                loadProductDetail(productId);
+            } else {
+                document.getElementById('productDetailContainer').innerHTML = `
+                    <div style="text-align: center; padding: 50px;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3em; color: #e74c3c;"></i>
+                        <h3>未指定商品</h3>
+                        <button onclick="window.location.href='/'" class="btn btn-primary" style="margin-top: 20px;">返回首页</button>
+                    </div>
+                `;
+            }
+        });
+    </script>
 </body>
 </html>

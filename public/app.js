@@ -138,6 +138,13 @@ function repairCartData() {
 
 // Load all products with sorting
 async function loadProducts(sortBy = 'createdAt') {
+    // 添加刷新按钮加载状态
+    const refreshBtn = document.querySelector('.btn-refresh');
+    if (refreshBtn) {
+        refreshBtn.classList.add('loading');
+        refreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> 加载中...';
+    }
+
     try {
         console.log(`🔄 加载商品，排序方式: ${sortBy}`);
         const category = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : '';
@@ -183,6 +190,12 @@ async function loadProducts(sortBy = 'createdAt') {
                 </button>
             </div>
         `;
+    } finally {
+        // 恢复刷新按钮状态
+        if (refreshBtn) {
+            refreshBtn.classList.remove('loading');
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> 刷新商品';
+        }
     }
 }
 
@@ -204,7 +217,7 @@ function displayRecommendedProducts(products) {
 }
 
 // Display products with enhanced info
-function displayProducts(products) {
+function displayProducts(products, searchQuery = '') {
     if (!productList) return;
 
     if (products.length === 0) {
@@ -217,12 +230,19 @@ function displayProducts(products) {
         return;
     }
 
-    productList.innerHTML = products.map(product => createProductCard(product, false)).join('');
+    productList.innerHTML = products.map(product => createProductCard(product, false, searchQuery)).join('');
 }
 
 // Enhanced product card creation
-function createProductCard(product, isRecommended = false) {
+function createProductCard(product, isRecommended = false, searchQuery = '') {
     const merchantInfo = product.merchantId ? product.merchantId.merchantInfo : null;
+
+    // 高亮搜索关键词
+    const highlightText = (text, query) => {
+        if (!query || !text) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<mark style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); color: #2c3e50; padding: 2px 4px; border-radius: 3px;">$1</mark>');
+    };
     const supplierInfo = product.supplierId ? product.supplierId.merchantInfo : null;
     const rating = supplierInfo ? supplierInfo.rating || 5 : (merchantInfo ? merchantInfo.rating || 5 : 5);
 
@@ -243,10 +263,14 @@ function createProductCard(product, isRecommended = false) {
         <div class="product-card ${isRecommended ? 'recommended' : ''}" style="position: relative;">
             ${isRecommended ? '<div class="recommended-badge"><i class="fas fa-star"></i> 推荐</div>' : ''}
             ${isOutOfStock ? '<div class="out-of-stock-overlay"><span>缺货</span></div>' : ''}
-            <img src="${product.imageUrl}" alt="${product.name}" class="product-image" style="${isOutOfStock ? 'filter: grayscale(50%);' : ''}">
+            <a href="product-detail.html?id=${product._id}" style="text-decoration: none; color: inherit; display: block;">
+                <img src="${product.imageUrl}" alt="${product.name}" class="product-image" style="${isOutOfStock ? 'filter: grayscale(50%);' : ''}">
+            </a>
             <div class="product-info">
-                <h3 class="product-title" style="${isOutOfStock ? 'color: #6c757d;' : ''}">${product.name}</h3>
-                <p class="product-description" style="${isOutOfStock ? 'color: #adb5bd;' : ''}">${product.description}</p>
+                <a href="product-detail.html?id=${product._id}" style="text-decoration: none; color: inherit;">
+                    <h3 class="product-title" style="${isOutOfStock ? 'color: #6c757d;' : ''}">${highlightText(product.name, searchQuery)}</h3>
+                </a>
+                <p class="product-description" style="${isOutOfStock ? 'color: #adb5bd;' : ''}">${highlightText(product.description, searchQuery)}</p>
 
                 <!-- 供应商信息 -->
                 <div class="supplier-info" style="margin: 8px 0; padding: 8px; background: #f0f8ff; border-radius: 4px;">
@@ -347,32 +371,100 @@ async function searchProducts() {
         return;
     }
 
+    // 显示搜索加载状态
+    if (productList) {
+        productList.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                <i class="fas fa-search fa-spin" style="font-size: 2em; color: #3498db;"></i>
+                <p style="margin-top: 15px; color: #7f8c8d;">正在搜索 "${query}" 相关商品...</p>
+            </div>
+        `;
+    }
+
     try {
         const category = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : '';
         let url = `${API_BASE}/products?search=${encodeURIComponent(query)}`;
         if (category) url += `&category=${category}`;
 
         const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const products = await response.json();
 
-        // 显示搜索结果在全部商品区域
-        displayProducts(products);
+        // 显示搜索结果
+        displayProducts(products, query);
 
         // 显示搜索统计
         if (productList && products.length > 0) {
             const searchStats = document.createElement('div');
-            searchStats.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; margin-bottom: 20px;';
+            searchStats.className = 'search-stats';
+            searchStats.style.cssText = 'grid-column: 1/-1; text-align: center; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);';
             searchStats.innerHTML = `
-                <h3 style="margin: 0 0 8px 0; color: #2c3e50;">
+                <h3 style="margin: 0 0 8px 0; color: white;">
                     <i class="fas fa-search"></i> 搜索结果
                 </h3>
-                <p style="margin: 0; color: #7f8c8d;">找到 ${products.length} 个与 "${query}" 相关的商品</p>
+                <p style="margin: 0; color: rgba(255,255,255,0.9);">找到 <strong>${products.length}</strong> 个与 <strong>"${query}"</strong> 相关的商品</p>
+                <button onclick="clearSearch()" style="margin-top: 10px; padding: 6px 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; color: white; cursor: pointer; font-size: 12px; transition: all 0.3s ease;">
+                    <i class="fas fa-times"></i> 清除搜索
+                </button>
             `;
             productList.insertBefore(searchStats, productList.firstChild);
+        } else if (products.length === 0) {
+            // 无搜索结果
+            if (productList) {
+                productList.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                        <i class="fas fa-search" style="font-size: 3em; color: #bdc3c7; margin-bottom: 20px;"></i>
+                        <h3 style="color: #7f8c8d; margin-bottom: 15px;">未找到相关商品</h3>
+                        <p style="color: #95a5a6; margin-bottom: 20px;">试试搜索其他关键词，如"书"、"台灯"、"耳机"等</p>
+                        <div style="max-width: 400px; margin: 0 auto;">
+                            <h4 style="color: #7f8c8d; margin-bottom: 10px;">热门搜索：</h4>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+                                ${['书', '台灯', '耳机', '键盘', 'T恤', '夹克', '抱枕', '音箱', '面霜', '蜡烛'].map(keyword =>
+                                    `<button onclick="quickSearch('${keyword}')" style="padding: 4px 12px; background: #ecf0f1; border: none; border-radius: 15px; color: #2c3e50; cursor: pointer; font-size: 12px; transition: all 0.3s ease;">${keyword}</button>`
+                                ).join('')}
+                            </div>
+                        </div>
+                        <button onclick="clearSearch()" style="margin-top: 20px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 25px; cursor: pointer;">
+                            <i class="fas fa-arrow-left"></i> 返回全部商品
+                        </button>
+                    </div>
+                `;
+            }
         }
     } catch (error) {
         console.error('搜索失败:', error);
+        if (productList) {
+            productList.innerHTML = `
+                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2em; color: #e74c3c;"></i>
+                    <h3 style="color: #e74c3c; margin: 10px 0;">搜索失败</h3>
+                    <p style="margin-top: 10px; color: #7f8c8d;">错误信息: ${error.message}</p>
+                    <button onclick="searchProducts('${query}')" style="margin-top: 15px; padding: 10px 20px; background: #3498db; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-redo"></i> 重试
+                    </button>
+                </div>
+            `;
+        }
     }
+}
+
+// 快速搜索
+function quickSearch(keyword) {
+    if (searchInput) {
+        searchInput.value = keyword;
+        searchProducts();
+    }
+}
+
+// 清除搜索
+function clearSearch() {
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    loadProducts();
 }
 
 // Sort products
@@ -405,7 +497,7 @@ function filterByCategory() {
 }
 
 // Enhanced add to cart
-function addToCart(productId) {
+function addToCart(productId, quantity = 1) {
     if (!currentUser) {
         alert('请先登录');
         return;
@@ -425,7 +517,7 @@ function addToCart(productId) {
             alert('已达到库存上限');
             return;
         }
-        existingItem.quantity++;
+        existingItem.quantity += quantity;
     } else {
         cart.push({
             productId: productId,
@@ -433,7 +525,7 @@ function addToCart(productId) {
             id: product._id,  // 备用ID字段
             name: product.name,
             price: product.price,
-            quantity: 1,
+            quantity: quantity,
             merchant: product.merchant,
             stock: product.stock
         });
@@ -1238,6 +1330,151 @@ style.textContent = `
         border-radius: 3px;
         display: inline-block;
     }
+
+    .product-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .detail-image-container {
+        text-align: center;
+    }
+
+    .detail-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-info {
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.9em;
+        color: #555;
+    }
+
+    .detail-price {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #e74c3c;
+        margin-bottom: 15px;
+    }
+
+    .detail-description {
+        margin-bottom: 15px;
+    }
+
+    .merchant-card {
+        padding: 15px;
+        background: #e3f2fd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .merchant-card h4 {
+        margin: 0 0 10px 0;
+        color: #2c3e50;
+    }
+
+    .merchant-card a {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 8px 15px;
+        background: #3498db;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background 0.3s ease;
+    }
+
+    .merchant-card a:hover {
+        background: #2980b9;
+    }
+
+    .detail-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .quantity-btn {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: background 0.3s ease;
+    }
+
+    .quantity-btn:hover {
+        background: #2980b9;
+    }
+
+    .quantity-input {
+        width: 60px;
+        text-align: center;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.9em;
+    }
+
+    .btn-primary {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: background 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+    }
+
+    .btn-secondary {
+        background: #f0f8ff;
+        color: #3498db;
+        border: 1px solid #3498db;
+        padding: 8px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: #3498db;
+        color: white;
+    }
 `;
 document.head.appendChild(style);
 
@@ -1275,3 +1512,113 @@ async function loadMerchantPage(merchantId) {
         `;
     }
 }
+
+// Load product detail page
+async function loadProductDetail(productId) {
+    const container = document.getElementById('productDetailContainer');
+    if (!container) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/products/${productId}`);
+        if (!response.ok) throw new Error('获取商品详情失败');
+        
+        const product = await response.json();
+        allProducts = [product]; // Ensure addToCart works
+
+        const merchantInfo = product.merchantId ? product.merchantId.merchantInfo : null;
+        const supplierInfo = product.supplierId ? product.supplierId.merchantInfo : null;
+        const displayMerchant = supplierInfo || merchantInfo || { shopName: product.merchant || '官方自营' };
+        
+        // Stock status logic
+        const stock = product.stock || 0;
+        const isOutOfStock = stock <= 0;
+        const isLowStock = stock > 0 && stock < 10;
+        const stockColor = isOutOfStock ? '#dc3545' : (isLowStock ? '#ffc107' : '#28a745');
+        const stockText = isOutOfStock ? '缺货' : (isLowStock ? `仅剩 ${stock} 件` : '库存充足');
+
+        container.innerHTML = `
+            <div class="product-detail-grid">
+                <div class="detail-image-container">
+                    <img src="${product.imageUrl}" alt="${product.name}" class="detail-image" style="${isOutOfStock ? 'filter: grayscale(50%);' : ''}">
+                </div>
+                <div class="detail-info">
+                    <h1>${product.name}</h1>
+                    <div class="product-code" style="margin-bottom: 15px;">编号: ${product.productCode || 'N/A'}</div>
+                    
+                    <div class="detail-meta">
+                        <div class="meta-item">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>销量: <strong>${product.salesCount || 0}</strong></span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-box"></i>
+                            <span style="color: ${stockColor}">${stockText}</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="fas fa-tag"></i>
+                            <span>${product.category}</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-price">¥${product.price}</div>
+                    
+                    <div class="detail-description">
+                        <h3>商品详情</h3>
+                        <p>${product.description}</p>
+                    </div>
+
+                    <div class="merchant-card">
+                        <h4 style="margin: 0 0 10px 0; color: #2c3e50;">
+                            <i class="fas fa-store" style="color: #3498db;"></i> 商家信息
+                        </h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: bold; font-size: 1.1em;">${displayMerchant.shopName}</div>
+                                <div style="color: #7f8c8d; font-size: 0.9em; margin-top: 5px;">${displayMerchant.shopDescription || '暂无简介'}</div>
+                            </div>
+                            <a href="merchant.html?id=${product.merchantId ? (product.merchantId._id || product.merchantId) : ''}" 
+                               class="btn btn-secondary" style="padding: 8px 15px; font-size: 0.9em;">
+                                进店逛逛
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="detail-actions">
+                        <div class="quantity-selector">
+                            <button class="quantity-btn" onclick="adjustDetailQuantity(-1)">-</button>
+                            <input type="text" id="detailQuantity" class="quantity-input" value="1" readonly>
+                            <button class="quantity-btn" onclick="adjustDetailQuantity(1, ${stock})">+</button>
+                        </div>
+                        <button class="btn btn-primary btn-lg" 
+                                onclick="addToCart('${product._id}', parseInt(document.getElementById('detailQuantity').value))"
+                                ${isOutOfStock ? 'disabled style="background: #95a5a6; cursor: not-allowed;"' : ''}>
+                            <i class="fas fa-shopping-cart"></i> ${isOutOfStock ? '暂时缺货' : '加入购物车'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('加载详情失败:', error);
+        container.innerHTML = `
+            <div style="text-align: center; padding: 50px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3em; color: #e74c3c;"></i>
+                <h3>加载商品详情失败</h3>
+                <p>${error.message}</p>
+                <button onclick="window.location.reload()" class="btn btn-primary" style="margin-top: 20px;">重试</button>
+            </div>
+        `;
+    }
+}
+
+// Helper for quantity adjustment in detail page
+window.adjustDetailQuantity = function(delta, maxStock) {
+    const input = document.getElementById('detailQuantity');
+    let newValue = parseInt(input.value) + delta;
+    if (newValue < 1) newValue = 1;
+    if (maxStock && newValue > maxStock) {
+        alert('已达到最大库存限制');
+        newValue = maxStock;
+    }
+    input.value = newValue;
+};
