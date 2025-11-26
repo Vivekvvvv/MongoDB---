@@ -245,6 +245,60 @@ async function seedDatabase() {
           detail: '工业区'
         }
       },
+      {
+        name: '舒适抱枕',
+        description: '记忆棉内芯，亲肤面料，支撑颈椎，缓解疲劳。',
+        price: 79,
+        category: 'Home',
+        imageUrl: 'https://pic.rmb.bdstatic.com/bjh/news/f88d5905e092e01432f873acfc9ef186.png',
+        merchant: '家居良品',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'PILLOW-001',
+        stock: 250,
+        salesCount: 180,
+        shippingAddress: {
+          province: '浙江省',
+          city: '杭州市',
+          district: '余杭区',
+          detail: '家居产业园'
+        }
+      },
+      {
+        name: '香薰加湿器',
+        description: '超声波雾化，七彩灯光，静音设计，改善室内空气质量。',
+        price: 159,
+        category: 'Home',
+        imageUrl: 'https://images.unsplash.com/photo-1579318255652-f0a052602a11?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aHVtaWRpZmllcnxlbnwwfHwwfHx8MA%3D%3D',
+        merchant: '家居良品',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'HUMIDIFIER-001',
+        stock: 150,
+        salesCount: 220,
+        shippingAddress: {
+          province: '广东省',
+          city: '深圳市',
+          district: '龙岗区',
+          detail: '工业园'
+        }
+      },
+      {
+        name: '北欧风花瓶',
+        description: '简约北欧设计，陶瓷材质，花艺装饰，提升居家品味。',
+        price: 89,
+        category: 'Home',
+        imageUrl: 'https://images.unsplash.com/photo-1559159118-e31f47052722?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dmFzZXxlbnwwfHwwfHx8MA%3D%3D',
+        merchant: '家居良品',
+        merchantId: merchant1 ? merchant1._id : null,
+        productCode: 'VASE-001',
+        stock: 200,
+        salesCount: 95,
+        shippingAddress: {
+          province: '江苏省',
+          city: '苏州市',
+          district: '吴中区',
+          detail: '工艺园区'
+        }
+      },
       // New products for merchants
       {
         name: '北欧简约床头柜',
