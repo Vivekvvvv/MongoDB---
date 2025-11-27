@@ -8,7 +8,7 @@ const logisticsSchema = new mongoose.Schema({
   },
   trackingNumber: {
     type: String,
-    required: true,
+    required: false,
     unique: true
   },
   carrier: {

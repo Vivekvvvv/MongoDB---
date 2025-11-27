@@ -175,6 +175,16 @@ body {
     text-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+/* 惠多多品牌样式 - 简洁版 */
+.huiddo-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+    background: linear-gradient(45deg, #fff, #f8f9fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .search-bar {
     display: flex;
     align-items: center;
@@ -645,14 +655,40 @@ body {
     border-top: 1px solid #ecf0f1;
 }
 
+.cart-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.clear-cart-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    border: none;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+}
+
+.clear-cart-btn:hover {
+    background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+}
+
 .checkout-btn {
-    width: 100%;
+    flex: 2;
     background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
     border: none;
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 1.1rem;
+    padding: 12px 15px;
+    border-radius: 8px;
+    font-size: 1rem;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;

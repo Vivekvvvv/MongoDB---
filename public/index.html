@@ -3,32 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>简易电商平台</title>
+    <title>惠多多 - 简易电商平台</title>
     <link rel="stylesheet" href="style.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
-        <div class="nav-brand">MyShop</div>
-        
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="搜索商品...">
-            <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
-        </div>
-
-        <div class="category-filter" style="margin: 0 20px;">
-            <div class="modern-select">
-                <select id="categoryFilter" onchange="filterByCategory()">
-                    <option value="">所有分类</option>
-                    <option value="Electronics">电子产品</option>
-                    <option value="Clothing">服装</option>
-                    <option value="Books">书籍</option>
-                    <option value="Home">家居</option>
-                    <option value="Beauty">美妆</option>
-                </select>
-            </div>
-        </div>
+        <div class="nav-brand huiddo-brand">惠多多</div>
 
         <div class="nav-actions">
             <!-- User info and admin link will be injected by JS -->
@@ -111,7 +93,10 @@
         </div>
         <div class="cart-footer">
             <div class="cart-total">总计: ¥<span id="cartTotal">0.00</span></div>
-            <button onclick="checkout()" class="checkout-btn">去结算</button>
+            <div class="cart-actions">
+                <button onclick="clearCart()" class="clear-cart-btn" style="margin-right: 10px;">清空购物车</button>
+                <button onclick="checkout()" class="checkout-btn">去结算</button>
+            </div>
         </div>
     </div>
 

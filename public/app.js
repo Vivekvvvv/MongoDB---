@@ -6,7 +6,7 @@ const cartTotalElement = document.getElementById('cartTotal');
 const cartCountElement = document.getElementById('cartCount');
 const searchInput = document.getElementById('searchInput');
 
-let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let cart = []; // 将在页面加载时通过 validateAndRepairCart 初始化
 let allProducts = [];
 let recommendedProducts = [];
 let currentUser = null;
@@ -169,6 +169,10 @@ async function loadProducts(sortBy = 'createdAt') {
 
         allProducts = validProducts;
 
+        // 商品加载完成后，验证和修复购物车数据
+        cart = validateAndRepairCart();
+        updateCartUI();
+
         // 显示排序信息
         if (sortBy !== 'createdAt') {
             console.log(`📊 商品排序示例 (前3个):`);
@@ -263,13 +267,13 @@ function createProductCard(product, isRecommended = false, searchQuery = '') {
         <div class="product-card ${isRecommended ? 'recommended' : ''}" style="position: relative;">
             ${isRecommended ? '<div class="recommended-badge"><i class="fas fa-star"></i> 推荐</div>' : ''}
             ${isOutOfStock ? '<div class="out-of-stock-overlay"><span>缺货</span></div>' : ''}
-            <a href="product-detail.html?id=${product._id}" style="text-decoration: none; color: inherit; display: block;">
+            <div style="display: block;">
                 <img src="${product.imageUrl}" alt="${product.name}" class="product-image" style="${isOutOfStock ? 'filter: grayscale(50%);' : ''}">
-            </a>
+            </div>
             <div class="product-info">
-                <a href="product-detail.html?id=${product._id}" style="text-decoration: none; color: inherit;">
+                <div style="text-decoration: none; color: inherit;">
                     <h3 class="product-title" style="${isOutOfStock ? 'color: #6c757d;' : ''}">${highlightText(product.name, searchQuery)}</h3>
-                </a>
+                </div>
                 <p class="product-description" style="${isOutOfStock ? 'color: #adb5bd;' : ''}">${highlightText(product.description, searchQuery)}</p>
 
                 <!-- 供应商信息 -->
@@ -492,7 +496,9 @@ function sortProducts() {
 // Filter by category
 function filterByCategory() {
     const category = document.getElementById('categoryFilter').value;
-    const sortBy = document.getElementById('sortBy').value;
+    const sortByElement = document.getElementById('sortBy');
+    const sortBy = sortByElement ? sortByElement.value : 'createdAt'; // 默认排序
+
     loadProducts(sortBy);
 }
 
@@ -1253,6 +1259,102 @@ function removeFromCart(productId) {
     } else {
         showNotification('❌ 未能从购物车中删除商品');
     }
+}
+
+// 清空购物车功能
+function clearCart() {
+    if (cart.length === 0) {
+        showNotification('🛒 购物车已经是空的');
+        return;
+    }
+
+    // 确认对话框
+    const isConfirmed = confirm('确定要清空购物车中的所有商品吗？此操作不可撤销。');
+
+    if (isConfirmed) {
+        const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cart = [];
+        saveCart();
+        updateCartUI();
+        showNotification(`✅ 已清空购物车，移除了 ${itemCount} 件商品`);
+    }
+}
+
+// 增强的购物车数据修复和验证功能
+function validateAndRepairCart() {
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let repaired = false;
+    let removedItems = [];
+
+    // 第一步：基础数据修复
+    const originalCount = cart.length;
+    cart = cart.filter(item => item && (item.name || item.productId));
+    if (cart.length !== originalCount) {
+        repaired = true;
+        removedItems.push(originalCount - cart.length + '个无效商品项');
+    }
+
+    // 第二步：ID字段统一和验证
+    cart = cart.map(item => {
+        const id = item.productId || item._id || item.id;
+
+        if (id) {
+            // 统一所有ID字段
+            if (item.productId !== id) { item.productId = id; repaired = true; }
+            if (item._id !== id) { item._id = id; repaired = true; }
+            if (item.id !== id) { item.id = id; repaired = true; }
+        } else {
+            // 如果完全没有ID，生成一个临时的
+            const tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            item.productId = tempId;
+            item._id = tempId;
+            item.id = tempId;
+            repaired = true;
+            console.warn('⚠️ 为无ID商品生成临时ID:', item.name, tempId);
+        }
+        return item;
+    });
+
+    // 第三步：验证商品是否在当前商品列表中存在
+    if (allProducts && allProducts.length > 0) {
+        const validProductIds = new Set(allProducts.map(p => p._id));
+        const validCart = cart.filter(item => {
+            const itemId = item.productId || item._id || item.id;
+            const isValid = validProductIds.has(itemId);
+
+            if (!isValid && item.name) {
+                console.warn('⚠️ 购物车中的商品不存在于商品列表中:', item.name, itemId);
+                removedItems.push(item.name);
+            }
+
+            return isValid;
+        });
+
+        if (validCart.length !== cart.length) {
+            repaired = true;
+            cart = validCart;
+        }
+    }
+
+    // 第四步：验证库存
+    cart = cart.map(item => {
+        if (item.stock && item.quantity > item.stock) {
+            console.warn('⚠️ 购物车商品数量超过库存:', item.name, '库存:', item.stock, '数量:', item.quantity);
+            item.quantity = item.stock; // 调整为最大库存
+            repaired = true;
+        }
+        return item;
+    });
+
+    if (repaired) {
+        localStorage.setItem('cart', JSON.stringify(cart));
+        console.log('🔧 购物车数据已修复和验证');
+        if (removedItems.length > 0) {
+            showNotification(`⚠️ 购物车已清理，移除了无效商品: ${removedItems.join(', ')}`);
+        }
+    }
+
+    return cart;
 }
 
 function saveCart() {

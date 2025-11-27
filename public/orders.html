@@ -830,21 +830,44 @@
                         <button class="btn btn-danger" onclick="cancelOrder('${order._id}')">
                             <i class="fas fa-times"></i> 取消订单
                         </button>
+                        <button class="btn btn-danger" onclick="deleteOrder('${order._id}')">
+                            <i class="fas fa-trash"></i> 删除订单
+                        </button>
                     `;
                 case '已支付':
+                    return `
+                        <button class="btn btn-warning" onclick="trackOrder('${order._id}')">
+                            <i class="fas fa-truck"></i> 查看物流
+                        </button>
+                        <button class="btn btn-danger" onclick="requestRefund('${order._id}')">
+                            <i class="fas fa-undo"></i> 申请退款
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteOrder('${order._id}')">
+                            <i class="fas fa-trash"></i> 删除订单
+                        </button>
+                    `;
                 case '发货中':
                     return `
                         <button class="btn btn-warning" onclick="trackOrder('${order._id}')">
                             <i class="fas fa-truck"></i> 查看物流
                         </button>
-                    `;
-                case '已完成':
-                    return `
                         <button class="btn btn-success" onclick="confirmReceived('${order._id}')">
                             <i class="fas fa-check"></i> 确认收货
                         </button>
+                        <button class="btn btn-danger" onclick="requestRefund('${order._id}')">
+                            <i class="fas fa-undo"></i> 申请退款
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteOrder('${order._id}')">
+                            <i class="fas fa-trash"></i> 删除订单
+                        </button>
+                    `;
+                case '已完成':
+                    return `
                         <button class="btn btn-secondary" onclick="reorderItems('${order._id}')">
                             <i class="fas fa-redo"></i> 再次购买
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteOrder('${order._id}')">
+                            <i class="fas fa-trash"></i> 删除订单
                         </button>
                     `;
                 case '已取消':
@@ -852,6 +875,9 @@
                     return `
                         <button class="btn btn-secondary" onclick="reorderItems('${order._id}')">
                             <i class="fas fa-redo"></i> 再次购买
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteOrder('${order._id}')">
+                            <i class="fas fa-trash"></i> 删除订单
                         </button>
                     `;
                 default:
@@ -1092,6 +1118,57 @@
                 loadOrders(); // 重新加载订单列表
             } catch (error) {
                 console.error('确认收货失败:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        // 删除订单
+        async function deleteOrder(orderId) {
+            if (!confirm('确定要删除这个订单吗？删除后无法恢复。')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/orders/${orderId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || '删除订单失败');
+                }
+
+                showToast('订单已删除', 'success');
+                loadOrders(); // 重新加载订单列表
+            } catch (error) {
+                console.error('删除订单失败:', error);
+                showToast(error.message, 'error');
+            }
+        }
+
+        // 申请退款
+        async function requestRefund(orderId) {
+            if (!confirm('确定要申请退款吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/orders/${orderId}/refund`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || '申请退款失败');
+                }
+
+                showToast('退款申请成功', 'success');
+                loadOrders(); // 重新加载订单列表
+            } catch (error) {
+                console.error('申请退款失败:', error);
                 showToast(error.message, 'error');
             }
         }

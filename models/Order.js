@@ -19,6 +19,7 @@ const orderSchema = new mongoose.Schema({
     name: String,
     price: Number,
     quantity: Number,
+    imageUrl: String,
     merchant: String,
     merchantId: {
       type: mongoose.Schema.Types.ObjectId,

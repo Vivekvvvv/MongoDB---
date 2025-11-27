@@ -129,7 +129,7 @@ async function seedDatabase() {
         description: '搭载最新处理器，超长续航，适合办公和游戏。',
         price: 5999,
         category: 'Electronics',
-        imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wfGVufDB8fDB8fHww',
+        imageUrl: '/images/笔记本电脑.jpg',
         merchant: '官方旗舰店',
         merchantId: null,
         productCode: 'LAPTOP-001',
@@ -148,7 +148,7 @@ async function seedDatabase() {
         description: '沉浸式音质体验，主动降噪，舒适佩戴。',
         price: 1299,
         category: 'Electronics',
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D',
+        imageUrl: '/images/耳机.jpg',
         merchant: '潮流数码',
         merchantId: null,
         productCode: 'HEADPHONE-001',
@@ -167,7 +167,7 @@ async function seedDatabase() {
         description: '青轴手感，RGB背光，电竞专用。',
         price: 399,
         category: 'Electronics',
-        imageUrl: 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8a2V5Ym9hcmR8ZW58MHx8MHx8fDA%3D',
+        imageUrl: '/images/键盘.jpg',
         merchant: '潮流数码',
         merchantId: null,
         productCode: 'KEYBOARD-001',
@@ -188,7 +188,7 @@ async function seedDatabase() {
         description: '100%纯棉，透气舒适，简约百搭。',
         price: 99,
         category: 'Clothing',
-        imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8dHNoaXJ0fGVufDB8fDB8fHww',
+        imageUrl: '/images/T恤.jpg',
         merchant: '官方旗舰店',
         merchantId: null,
         productCode: 'TSHIRT-001',
@@ -207,7 +207,7 @@ async function seedDatabase() {
         description: '经典复古风格，耐磨耐穿，时尚单品。',
         price: 299,
         category: 'Clothing',
-        imageUrl: 'https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8amFja2V0fGVufDB8fDB8fHww',
+        imageUrl: '/images/牛仔夹克.jpg',
         merchant: '官方旗舰店',
         merchantId: null,
         productCode: 'JACKET-001',
@@ -228,7 +228,7 @@ async function seedDatabase() {
         description: '精选年度最佳科幻小说，探索未来世界。',
         price: 59,
         category: 'Books',
-        imageUrl: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGJvb2t8ZW58MHx8MHx8fDA%3D',
+        imageUrl: '/images/科幻小说.jpg',
         merchant: '官方旗舰店',
         merchantId: null,
         productCode: 'BOOK-001',
@@ -255,7 +255,7 @@ async function seedDatabase() {
         productCode: 'LAMP-001',
         stock: 180,
         salesCount: 320,
-        searchKeywords: '台灯,灯具,照明,护眼台灯,家居装饰,灯具,卧室灯,书房台灯,LED灯,家居用品',
+        searchKeywords: '台灯,灯具,照明,护眼台灯,家居装饰,灯具,卧室灯,阅读台灯,LED灯,家居用品',
         shippingAddress: {
           province: '广东省',
           city: '东莞市',
@@ -287,7 +287,7 @@ async function seedDatabase() {
         description: '超声波雾化，七彩灯光，静音设计，改善室内空气质量。',
         price: 159,
         category: 'Home',
-        imageUrl: 'https://miaobi-lite.bj.bcebos.com/miaobi/5mao/b%27LV8xNzM1NzAwNDYyLjc5ODU1OV8xNzM1NzAwNDYzLjI5MzQ2NQ%3D%3D%27/1.png',
+        imageUrl: '/images/香薰加湿器.jpg',
         merchant: '家居良品',
         merchantId: null,
         productCode: 'HUMIDIFIER-001',
@@ -306,7 +306,7 @@ async function seedDatabase() {
         description: '简约北欧设计，陶瓷材质，花艺装饰，提升居家品味。',
         price: 89,
         category: 'Home',
-        imageUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.alicdn.com%2Fimgextra%2Fi1%2F50983440%2FO1CN01pH84Qd1bHZ1BbgBFC_%21%2150983440.jpg&refer=http%3A%2F%2Fimg.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1766650902&t=bcaad8855712a2b76f888fcaf6d164d5',
+        imageUrl: '/images/北欧风花瓶.jpg',
         merchant: '家居良品',
         merchantId: null,
         productCode: 'VASE-001',
@@ -326,7 +326,7 @@ async function seedDatabase() {
         description: '北欧风格，简约实用，耐用材质。',
         price: 399,
         category: 'Home',
-        imageUrl: 'https://img0.baidu.com/it/u=4172668877,1101055297&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
+        imageUrl: '/images/北欧床头柜.jpg',
         merchant: '家居良品',
         merchantId: null,
         productCode: 'CABINET-001',
@@ -340,7 +340,7 @@ async function seedDatabase() {
         description: '便携式音响，重低音，蓝牙5.0连接。',
         price: 299,
         category: 'Electronics',
-        imageUrl: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fimg.alicdn.com%2Fimgextra%2Fi2%2F2810093165%2FO1CN011SIcFd1ZFcXzKPtKl_%21%212810093165.jpg&refer=http%3A%2F%2Fimg.alicdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1766650977&t=4c808bafb2c3ed8ecbd13ae640b97b91',
+        imageUrl: '/images/蓝牙音箱.jpg',
         merchant: '潮流数码',
         merchantId: null,
         productCode: 'SPEAKER-001',
@@ -354,7 +354,7 @@ async function seedDatabase() {
         description: '舒适面料，时尚印花，轻盈飘逸。',
         price: 199,
         category: 'Clothing',
-        imageUrl: 'https://img2.baidu.com/it/u=3802551896,186697424&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=750',
+        imageUrl: '/images/春季印花连衣裙.jpg',
         merchant: '时尚服饰',
         merchantId: null,
         productCode: 'DRESS-001',
@@ -384,7 +384,7 @@ async function seedDatabase() {
         description: '深层补水，长效保湿，适合各种肤质。',
         price: 199,
         category: 'Beauty',
-        imageUrl: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3JlYW18ZW58MHx8MHx8fDA%3D',
+        imageUrl: '/images/面霜.jpg',
         merchant: '官方旗舰店',
         merchantId: null,
         productCode: 'CREAM-001',
@@ -777,16 +777,13 @@ app.delete('/api/addresses/:id', async (req, res) => {
 
 // --- 订单路由 ---
 
-// 创建订单（原子性事务处理）
+// 创建订单（原子性事务处理 - 已降级为普通操作以支持单节点MongoDB）
 app.post('/api/orders', async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const { userId, items, shippingAddress, remarks } = req.body;
 
     // 验证用户
-    const user = await User.findById(userId).session(session);
+    const user = await User.findById(userId);
     if (!user) {
       throw new Error('用户不存在');
     }
@@ -796,7 +793,7 @@ app.post('/api/orders', async (req, res) => {
     const populatedItems = [];
 
     for (const item of items) {
-      const product = await Product.findById(item.productId).session(session);
+      const product = await Product.findById(item.productId);
       if (!product) {
         throw new Error(`商品 ${item.productId} 不存在`);
       }
@@ -811,6 +808,7 @@ app.post('/api/orders', async (req, res) => {
         name: product.name,
         price: product.price,
         quantity: item.quantity,
+        imageUrl: product.imageUrl,
         merchant: product.merchant,
         merchantId: product.merchantId
       });
@@ -820,7 +818,7 @@ app.post('/api/orders', async (req, res) => {
       // 扣减库存
       product.stock -= item.quantity;
       product.salesCount += item.quantity;
-      await product.save({ session });
+      await product.save();
     }
 
     // 检查用户余额
@@ -830,15 +828,14 @@ app.post('/api/orders', async (req, res) => {
 
     // 扣减用户余额
     user.balance -= total;
-    await user.save({ session });
+    await user.save();
 
     // 更新商家销售额
     for (const item of populatedItems) {
       if (item.merchantId) {
         await User.findByIdAndUpdate(
           item.merchantId,
-          { $inc: { 'merchantInfo.totalSales': item.quantity } },
-          { session }
+          { $inc: { 'merchantInfo.totalSales': item.quantity } }
         );
       }
     }
@@ -858,7 +855,7 @@ app.post('/api/orders', async (req, res) => {
       }
     });
 
-    const savedOrder = await newOrder.save({ session });
+    const savedOrder = await newOrder.save();
 
     // 创建物流信息
     const logistics = new Logistics({
@@ -889,9 +886,7 @@ app.post('/api/orders', async (req, res) => {
       estimatedDelivery: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3天后
     });
 
-    await logistics.save({ session });
-
-    await session.commitTransaction();
+    await logistics.save();
 
     res.status(201).json({
       order: savedOrder,
@@ -900,11 +895,8 @@ app.post('/api/orders', async (req, res) => {
     });
 
   } catch (error) {
-    await session.abortTransaction();
     console.error('Order creation error:', error);
     res.status(400).json({ message: error.message });
-  } finally {
-    session.endSession();
   }
 });
 
@@ -1064,6 +1056,58 @@ app.post('/api/orders/:id/confirm', async (req, res) => {
 
     await order.save();
     res.json({ message: '确认收货成功', order });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 删除订单
+app.delete('/api/orders/:id', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: '订单不存在' });
+
+    await Order.findByIdAndDelete(req.params.id);
+    // 同时删除关联的物流信息
+    await Logistics.findOneAndDelete({ orderId: req.params.id });
+
+    res.json({ message: '订单已删除' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// 申请退款
+app.post('/api/orders/:id/refund', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: '订单不存在' });
+
+    if (!['已支付', '发货中'].includes(order.status)) {
+      return res.status(400).json({ message: '当前订单状态无法申请退款' });
+    }
+
+    // 这里简化处理，直接将状态改为已退款，实际业务中可能需要审核流程
+    order.status = '已退款';
+    
+    // 如果是余额支付，应该退还余额
+    if (order.paymentInfo.method === '余额支付') {
+      const user = await User.findById(order.userId);
+      if (user) {
+        user.balance += order.total;
+        await user.save();
+      }
+    }
+
+    // 恢复库存
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.productId, { 
+        $inc: { stock: item.quantity, salesCount: -item.quantity } 
+      });
+    }
+
+    await order.save();
+    res.json({ message: '退款申请成功，金额已退回', order });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
